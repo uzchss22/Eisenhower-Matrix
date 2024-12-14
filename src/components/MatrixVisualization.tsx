@@ -5,9 +5,10 @@ import { Task } from '../types';
 
 interface MatrixVisualizationProps {
   tasks: Task[];
+  onTaskDelete: (index: number) => void;
 }
 
-export const MatrixVisualization: React.FC<MatrixVisualizationProps> = ({ tasks }) => {
+export const MatrixVisualization: React.FC<MatrixVisualizationProps> = ({ tasks, onTaskDelete }) => {
   const width = Dimensions.get('window').width - 40;
   const height = width;
   const padding = 40;
@@ -138,6 +139,13 @@ export const MatrixVisualization: React.FC<MatrixVisualizationProps> = ({ tasks 
               <Circle
                 cx={x}
                 cy={y}
+                r={10}
+                fill="rgba(0,0,0,0)"
+                onPress={() => onTaskDelete(index)}
+              />
+              <Circle
+                cx={x}
+                cy={y}
                 r={5}
                 fill="blue"
               />
@@ -153,6 +161,48 @@ export const MatrixVisualization: React.FC<MatrixVisualizationProps> = ({ tasks 
             </React.Fragment>
           );
         })}
+
+        {/* 눈금 표시 */}
+        {[0, 2.5, 5, 7.5, 10].map((value) => (
+          <React.Fragment key={value}>
+            {/* X축 눈금 */}
+            <Line
+              x1={padding + (value / 10) * (width - 2 * padding)}
+              y1={height - padding}
+              x2={padding + (value / 10) * (width - 2 * padding)}
+              y2={height - padding + 5}
+              stroke="black"
+              strokeWidth="1"
+            />
+            <SvgText
+              x={padding + (value / 10) * (width - 2 * padding)}
+              y={height - padding + 15}
+              textAnchor="middle"
+              fontSize="10"
+            >
+              {value}
+            </SvgText>
+            
+            {/* Y축 눈금 */}
+            <Line
+              x1={padding - 5}
+              y1={height - (padding + (value / 10) * (height - 2 * padding))}
+              x2={padding}
+              y2={height - (padding + (value / 10) * (height - 2 * padding))}
+              stroke="black"
+              strokeWidth="1"
+            />
+            <SvgText
+              x={padding - 10}
+              y={height - (padding + (value / 10) * (height - 2 * padding))}
+              textAnchor="end"
+              fontSize="10"
+              alignmentBaseline="middle"
+            >
+              {value}
+            </SvgText>
+          </React.Fragment>
+        ))}
       </Svg>
     </View>
   );
