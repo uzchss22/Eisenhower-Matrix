@@ -1,33 +1,30 @@
 import React from 'react';
-import { View, StyleSheet, Dimensions } from 'react-native';
+import { View, StyleSheet, Dimensions, TouchableOpacity, Text, ScrollView } from 'react-native';
 import Svg, { Circle, Line, Text as SvgText, Rect } from 'react-native-svg';
 import { Task } from '../types';
 
 interface MatrixVisualizationProps {
   tasks: Task[];
-  onTaskDelete: (index: number) => void;
+  onTaskSelect: (task: Task) => void;
 }
 
-export const MatrixVisualization: React.FC<MatrixVisualizationProps> = ({ tasks, onTaskDelete }) => {
+export const MatrixVisualization: React.FC<MatrixVisualizationProps> = ({
+  tasks,
+  onTaskSelect
+}) => {
   const width = Dimensions.get('window').width - 40;
   const height = width;
   const padding = 40;
   const quadrantWidth = (width - 2 * padding) / 2;
   const quadrantHeight = (height - 2 * padding) / 2;
 
-  const getQuadrantColor = (x: number, y: number): string => {
-    const isRightHalf = x > padding + quadrantWidth;
-    const isTopHalf = y < padding + quadrantHeight;
-    
-    if (isRightHalf && isTopHalf) return 'rgba(255, 0, 0, 0.1)';  // 긴급 & 중요
-    if (!isRightHalf && isTopHalf) return 'rgba(0, 255, 0, 0.1)'; // 중요 & 긴급하지 않음
-    if (isRightHalf && !isTopHalf) return 'rgba(255, 165, 0, 0.1)'; // 긴급 & 중요하지 않음
-    return 'rgba(128, 128, 128, 0.1)'; // 긴급하지 않음 & 중요하지 않음
+  // NaN 체크 함수 추가
+  const getValidNumber = (value: number): number => {
+    return isNaN(value) ? 0 : value;
   };
 
-  return (
-    <View style={styles.container}>
-      <Svg width={width} height={height}>
+  const renderGraph = () => (
+    <Svg width={width} height={height}>
         {/* 사분면 배경 */}
         <Rect
           x={padding}
@@ -98,71 +95,24 @@ export const MatrixVisualization: React.FC<MatrixVisualizationProps> = ({ tasks,
 
         {/* 축 레이블 */}
         <SvgText
-          x={width / 2}
-          y={height - 10}
-          textAnchor="middle"
+          x={width - padding + 10}  // 오른쪽으로 이동
+          y={height - padding + 25}  // y 위치 조정
+          textAnchor="end"          // 텍스트 오른쪽 정렬
           fontSize="12"
         >
-          긴급도
+          Urgency
         </SvgText>
+
         <SvgText
-          x={15}
-          y={height / 2}
-          textAnchor="middle"
+          x={padding - 25}  
+          y={padding - 10} 
+          textAnchor="start"
           fontSize="12"
-          rotation="-90"
         >
-          중요도
+          Importance
         </SvgText>
 
-        {/* 사분면 레이블 */}
-        <SvgText x={padding + quadrantWidth/4} y={padding + quadrantHeight/2} textAnchor="middle" fontSize="12">
-          계획하기
-        </SvgText>
-        <SvgText x={padding + quadrantWidth*1.75} y={padding + quadrantHeight/2} textAnchor="middle" fontSize="12">
-          지금하기
-        </SvgText>
-        <SvgText x={padding + quadrantWidth/4} y={padding + quadrantHeight*1.5} textAnchor="middle" fontSize="12">
-          위임하기
-        </SvgText>
-        <SvgText x={padding + quadrantWidth*1.75} y={padding + quadrantHeight*1.5} textAnchor="middle" fontSize="12">
-          그만하기
-        </SvgText>
-
-        {/* 태스크 점들 */}
-        {tasks.map((task, index) => {
-          const x = padding + (task.urgency / 10) * (width - 2 * padding);
-          const y = height - (padding + (task.importance / 10) * (height - 2 * padding));
-          
-          return (
-            <React.Fragment key={index}>
-              <Circle
-                cx={x}
-                cy={y}
-                r={10}
-                fill="rgba(0,0,0,0)"
-                onPress={() => onTaskDelete(index)}
-              />
-              <Circle
-                cx={x}
-                cy={y}
-                r={5}
-                fill="blue"
-              />
-              <SvgText
-                x={x}
-                y={y - 10}
-                textAnchor="middle"
-                fontSize="10"
-                fill="black"
-              >
-                {task.title}
-              </SvgText>
-            </React.Fragment>
-          );
-        })}
-
-        {/* 눈금 표시 */}
+        {/* 축 눈금 */}
         {[0, 2.5, 5, 7.5, 10].map((value) => (
           <React.Fragment key={value}>
             {/* X축 눈금 */}
@@ -180,7 +130,7 @@ export const MatrixVisualization: React.FC<MatrixVisualizationProps> = ({ tasks,
               textAnchor="middle"
               fontSize="10"
             >
-              {value}
+              {Math.round(value)}
             </SvgText>
             
             {/* Y축 눈금 */}
@@ -199,18 +149,113 @@ export const MatrixVisualization: React.FC<MatrixVisualizationProps> = ({ tasks,
               fontSize="10"
               alignmentBaseline="middle"
             >
-              {value}
+              {Math.round(value)}
             </SvgText>
           </React.Fragment>
         ))}
-      </Svg>
+
+      {/* 태스크 점들 - NaN 체크 추가 */}
+      {tasks.map((task) => {
+        const x = padding + (getValidNumber(task.urgency) / 10) * (width - 2 * padding);
+        const y = height - (padding + (getValidNumber(task.importance) / 10) * (height - 2 * padding));
+        
+        return (
+          <React.Fragment key={task.id}>
+            <Circle
+              cx={x}
+              cy={y}
+              r={10}
+              fill="rgba(0,0,0,0)"
+              onPress={() => onTaskSelect(task)}
+            />
+            <Circle
+              cx={x}
+              cy={y}
+              r={5}
+              fill="blue"
+            />
+            <SvgText
+              x={x}
+              y={y - 10}
+              textAnchor="middle"
+              fontSize="10"
+              fill="black"
+            >
+              {task.title}
+            </SvgText>
+          </React.Fragment>
+        );
+      })}
+    </Svg>
+  );
+
+  const renderTaskList = () => (
+    <View style={styles.listContainer}>
+      <Text style={styles.listTitle}>Task List</Text>
+      {tasks.map((task) => (
+        <TouchableOpacity
+          key={task.id}
+          style={styles.taskItem}
+          onPress={() => onTaskSelect(task)}
+        >
+          <Text style={styles.taskTitle}>{task.title}</Text>
+          <View style={styles.taskMetrics}>
+            <Text style={styles.metricText}>
+              Urgency: {Math.round(task.urgency)}
+            </Text>
+            <Text style={styles.metricText}>
+              Importance: {Math.round(task.importance)}
+            </Text>
+          </View>
+        </TouchableOpacity>
+      ))}
     </View>
+  );
+
+  return (
+    <ScrollView style={styles.container}>
+      <View style={styles.graphContainer}>
+        {renderGraph()}
+      </View>
+      {renderTaskList()}
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
+  },
+  graphContainer: {
     padding: 20,
     backgroundColor: 'white',
+  },
+  listContainer: {
+    padding: 20,
+    backgroundColor: 'white',
+  },
+  listTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  taskItem: {
+    backgroundColor: '#f5f5f5',
+    padding: 15,
+    borderRadius: 8,
+    marginBottom: 10,
+  },
+  taskTitle: {
+    fontSize: 16,
+    fontWeight: '500',
+    marginBottom: 5,
+  },
+  taskMetrics: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  metricText: {
+    fontSize: 14,
+    color: '#666',
   },
 });

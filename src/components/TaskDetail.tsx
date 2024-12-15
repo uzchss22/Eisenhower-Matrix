@@ -3,48 +3,43 @@ import { View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-nativ
 import Slider from '@react-native-community/slider';
 import { Task } from '../types';
 
-interface TaskInputProps {
-  onTaskCreate: (task: Task) => void;
+interface TaskDetailProps {
+  task: Task;
+  onUpdate: (task: Task) => void;
+  onDelete: (taskId: string) => void;
+  onClose: () => void;
 }
 
-export const TaskInput: React.FC<TaskInputProps> = ({ onTaskCreate }) => {
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [urgency, setUrgency] = useState(5);
-  const [importance, setImportance] = useState(5);
+export const TaskDetail: React.FC<TaskDetailProps> = ({
+  task,
+  onUpdate,
+  onDelete,
+  onClose
+}) => {
+  const [title, setTitle] = useState(task.title);
+  const [description, setDescription] = useState(task.description);
+  const [urgency, setUrgency] = useState(task.urgency);
+  const [importance, setImportance] = useState(task.importance);
 
-  const handleSubmit = () => {
-    if (title.trim()) {
-      onTaskCreate({
-        id: Date.now().toString(),
-        title,
-        description,
-        urgency: Math.round(urgency),
-        importance: Math.round(importance),
-        date: new Date(),
-      });
-      setTitle('');
-      setDescription('');
-      setUrgency(5);
-      setImportance(5);
-    }
-  };
-
-  const handleNumberInput = (text: string, setter: (value: number) => void) => {
-    const num = parseInt(text);
-    if (!isNaN(num) && num >= 0 && num <= 10) {
-      setter(num);
-    }
+  const handleSave = () => {
+    onUpdate({
+      ...task,
+      title,
+      description,
+      urgency: Math.round(urgency),
+      importance: Math.round(importance),
+    });
   };
 
   return (
     <View style={styles.container}>
+      <Text style={styles.header}>Task Details</Text>
+
       <Text style={styles.label}>Title</Text>
       <TextInput
         style={styles.input}
         value={title}
         onChangeText={setTitle}
-        placeholder="Enter task title"
       />
 
       <Text style={styles.label}>Description</Text>
@@ -53,7 +48,6 @@ export const TaskInput: React.FC<TaskInputProps> = ({ onTaskCreate }) => {
         value={description}
         onChangeText={setDescription}
         multiline
-        placeholder="Enter task description"
       />
 
       <Text style={styles.label}>Urgency: {Math.round(urgency)}</Text>
@@ -61,7 +55,12 @@ export const TaskInput: React.FC<TaskInputProps> = ({ onTaskCreate }) => {
         <TextInput
           style={styles.numberInput}
           value={String(Math.round(urgency))}
-          onChangeText={(text) => handleNumberInput(text, setUrgency)}
+          onChangeText={(text) => {
+            const num = parseInt(text);
+            if (!isNaN(num) && num >= 0 && num <= 10) {
+              setUrgency(num);
+            }
+          }}
           keyboardType="numeric"
         />
         <Slider
@@ -79,7 +78,12 @@ export const TaskInput: React.FC<TaskInputProps> = ({ onTaskCreate }) => {
         <TextInput
           style={styles.numberInput}
           value={String(Math.round(importance))}
-          onChangeText={(text) => handleNumberInput(text, setImportance)}
+          onChangeText={(text) => {
+            const num = parseInt(text);
+            if (!isNaN(num) && num >= 0 && num <= 10) {
+              setImportance(num);
+            }
+          }}
           keyboardType="numeric"
         />
         <Slider
@@ -92,12 +96,28 @@ export const TaskInput: React.FC<TaskInputProps> = ({ onTaskCreate }) => {
         />
       </View>
 
-      <TouchableOpacity
-        style={styles.button}
-        onPress={handleSubmit}
-      >
-        <Text style={styles.buttonText}>Add Task</Text>
-      </TouchableOpacity>
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity
+          style={[styles.button, styles.saveButton]}
+          onPress={handleSave}
+        >
+          <Text style={styles.buttonText}>Save</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.button, styles.deleteButton]}
+          onPress={() => onDelete(task.id)}
+        >
+          <Text style={styles.buttonText}>Complete</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.button, styles.cancelButton]}
+          onPress={onClose}
+        >
+          <Text style={styles.buttonText}>Cancel</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
@@ -105,6 +125,11 @@ export const TaskInput: React.FC<TaskInputProps> = ({ onTaskCreate }) => {
 const styles = StyleSheet.create({
   container: {
     padding: 20,
+  },
+  header: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 20,
   },
   label: {
     fontSize: 16,
@@ -139,14 +164,28 @@ const styles = StyleSheet.create({
     padding: 5,
     textAlign: 'center',
   },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 20,
+  },
   button: {
-    backgroundColor: '#007AFF',
     padding: 15,
     borderRadius: 5,
-    alignItems: 'center',
+    minWidth: 100,
+  },
+  saveButton: {
+    backgroundColor: '#007AFF',
+  },
+  deleteButton: {
+    backgroundColor: '#FF3B30',
+  },
+  cancelButton: {
+    backgroundColor: '#8E8E93',
   },
   buttonText: {
     color: 'white',
+    textAlign: 'center',
     fontSize: 16,
     fontWeight: 'bold',
   },
