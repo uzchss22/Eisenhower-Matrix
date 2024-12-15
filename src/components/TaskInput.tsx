@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, Platform } from 'react-native';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import Slider from '@react-native-community/slider';
+import NotificationService from '../services/NotificationService';
 import { Task } from '../types';
 
 interface TaskInputProps {
@@ -12,21 +14,35 @@ export const TaskInput: React.FC<TaskInputProps> = ({ onTaskCreate }) => {
   const [description, setDescription] = useState('');
   const [urgency, setUrgency] = useState(5);
   const [importance, setImportance] = useState(5);
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [notificationDate, setNotificationDate] = useState<Date | undefined>();
 
   const handleSubmit = () => {
     if (title.trim()) {
-      onTaskCreate({
+      const newTask: Task = {
         id: Date.now().toString(),
         title,
         description,
         urgency: Math.round(urgency),
         importance: Math.round(importance),
         date: new Date(),
-      });
+        notificationDate,
+      };
+
+      if (notificationDate) {
+        NotificationService.scheduleNotification({
+          id: newTask.id,
+          title: newTask.title,
+          notificationDate,
+        });
+      }
+
+      onTaskCreate(newTask);
       setTitle('');
       setDescription('');
       setUrgency(5);
       setImportance(5);
+      setNotificationDate(undefined);
     }
   };
 
@@ -34,6 +50,13 @@ export const TaskInput: React.FC<TaskInputProps> = ({ onTaskCreate }) => {
     const num = parseInt(text);
     if (!isNaN(num) && num >= 0 && num <= 10) {
       setter(num);
+    }
+  };
+
+  const handleDateChange = (event: any, selectedDate?: Date) => {
+    setShowDatePicker(Platform.OS === 'ios');
+    if (selectedDate) {
+      setNotificationDate(selectedDate);
     }
   };
 
@@ -90,6 +113,30 @@ export const TaskInput: React.FC<TaskInputProps> = ({ onTaskCreate }) => {
           onValueChange={setImportance}
           step={1}
         />
+      </View>
+
+      <View style={styles.notificationSection}>
+        <Text style={styles.sectionTitle}>Notification Settings</Text>
+        <TouchableOpacity
+          style={styles.dateButton}
+          onPress={() => setShowDatePicker(true)}
+        >
+          <Text style={styles.dateButtonText}>
+            {notificationDate 
+              ? notificationDate.toLocaleString() 
+              : 'Set Notification Time'}
+          </Text>
+        </TouchableOpacity>
+
+        {showDatePicker && (
+          <DateTimePicker
+            value={notificationDate || new Date()}
+            mode="datetime"
+            display="default"
+            onChange={handleDateChange}
+            minimumDate={new Date()}
+          />
+        )}
       </View>
 
       <TouchableOpacity
@@ -149,5 +196,33 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  notificationSection: {
+    marginTop: 30,
+    marginBottom: 20,
+    paddingTop: 20,
+    paddingBottom: 20,
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
+    borderColor: '#eee',
+    alignItems: 'center',
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 15,
+    color: '#007AFF',
+  },
+  dateButton: {
+    backgroundColor: '#f0f0f0',
+    padding: 15,
+    borderRadius: 5,
+    marginBottom: 15,
+    minWidth: 200,  // 버튼 최소 너비 설정
+  },
+  dateButtonText: {
+    textAlign: 'center',
+    color: '#007AFF',
+    fontSize: 16,
   },
 });

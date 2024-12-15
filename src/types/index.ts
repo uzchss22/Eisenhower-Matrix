@@ -5,6 +5,8 @@ export interface Task {
   urgency: number;
   importance: number;
   date: Date;
+  notificationDate?: Date;  
+  notificationId?: string;  
 }
 
 export interface CompletedTask extends Task {

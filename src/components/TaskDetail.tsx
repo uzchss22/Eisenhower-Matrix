@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, Platform, ScrollView } from 'react-native';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import Slider from '@react-native-community/slider';
+import NotificationService from '../services/NotificationService';
 import { Task } from '../types';
 
 interface TaskDetailProps {
@@ -20,18 +22,50 @@ export const TaskDetail: React.FC<TaskDetailProps> = ({
   const [description, setDescription] = useState(task.description);
   const [urgency, setUrgency] = useState(task.urgency);
   const [importance, setImportance] = useState(task.importance);
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [notificationDate, setNotificationDate] = useState<Date | undefined>(task.notificationDate);
 
   const handleSave = () => {
-    onUpdate({
+    if (task.notificationId) {
+      NotificationService.cancelNotification(task.notificationId);
+    }
+
+    const updatedTask: Task = {
       ...task,
       title,
       description,
       urgency: Math.round(urgency),
       importance: Math.round(importance),
-    });
+      notificationDate,
+    };
+
+    if (notificationDate) {
+      NotificationService.scheduleNotification({
+        id: updatedTask.id,
+        title: updatedTask.title,
+        notificationDate,
+      });
+    }
+
+    onUpdate(updatedTask);
+  };
+
+  const handleNumberInput = (text: string, setter: (value: number) => void) => {
+    const num = parseInt(text);
+    if (!isNaN(num) && num >= 0 && num <= 10) {
+      setter(num);
+    }
+  };
+
+  const handleDateChange = (event: any, selectedDate?: Date) => {
+    setShowDatePicker(Platform.OS === 'ios');
+    if (selectedDate) {
+      setNotificationDate(selectedDate);
+    }
   };
 
   return (
+    <ScrollView>
     <View style={styles.container}>
       <Text style={styles.header}>Task Details</Text>
 
@@ -55,12 +89,7 @@ export const TaskDetail: React.FC<TaskDetailProps> = ({
         <TextInput
           style={styles.numberInput}
           value={String(Math.round(urgency))}
-          onChangeText={(text) => {
-            const num = parseInt(text);
-            if (!isNaN(num) && num >= 0 && num <= 10) {
-              setUrgency(num);
-            }
-          }}
+          onChangeText={(text) => handleNumberInput(text, setUrgency)}
           keyboardType="numeric"
         />
         <Slider
@@ -78,12 +107,7 @@ export const TaskDetail: React.FC<TaskDetailProps> = ({
         <TextInput
           style={styles.numberInput}
           value={String(Math.round(importance))}
-          onChangeText={(text) => {
-            const num = parseInt(text);
-            if (!isNaN(num) && num >= 0 && num <= 10) {
-              setImportance(num);
-            }
-          }}
+          onChangeText={(text) => handleNumberInput(text, setImportance)}
           keyboardType="numeric"
         />
         <Slider
@@ -94,6 +118,30 @@ export const TaskDetail: React.FC<TaskDetailProps> = ({
           onValueChange={setImportance}
           step={1}
         />
+      </View>
+
+      <View style={styles.notificationSection}>
+        <Text style={styles.sectionTitle}>Notification Settings</Text>
+        <TouchableOpacity
+          style={styles.dateButton}
+          onPress={() => setShowDatePicker(true)}
+        >
+          <Text style={styles.dateButtonText}>
+            {notificationDate 
+              ? notificationDate.toLocaleString() 
+              : 'Set Notification Time'}
+          </Text>
+        </TouchableOpacity>
+
+        {showDatePicker && (
+          <DateTimePicker
+            value={notificationDate || new Date()}
+            mode="datetime"
+            display="default"
+            onChange={handleDateChange}
+            minimumDate={new Date()}
+          />
+        )}
       </View>
 
       <View style={styles.buttonContainer}>
@@ -119,12 +167,17 @@ export const TaskDetail: React.FC<TaskDetailProps> = ({
         </TouchableOpacity>
       </View>
     </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
+  scrollContainer: {
+    flex: 1,
+  },
   container: {
     padding: 20,
+    paddingBottom: 40, // 하단 여백 추가
   },
   header: {
     fontSize: 20,
@@ -168,6 +221,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginTop: 20,
+    marginBottom: 20,
   },
   button: {
     padding: 15,
@@ -188,5 +242,33 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  notificationSection: {
+    marginTop: 30,
+    marginBottom: 20,
+    paddingTop: 20,
+    paddingBottom: 20,
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
+    borderColor: '#eee',
+    alignItems: 'center',
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 15,
+    color: '#007AFF',
+  },
+  dateButton: {
+    backgroundColor: '#f0f0f0',
+    padding: 15,
+    borderRadius: 5,
+    marginBottom: 15,
+    minWidth: 200,  // 버튼 최소 너비 설정
+  },
+  dateButtonText: {
+    textAlign: 'center',
+    color: '#007AFF',
+    fontSize: 16,
   },
 });

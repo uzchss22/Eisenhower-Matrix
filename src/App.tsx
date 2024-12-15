@@ -13,6 +13,7 @@ import { MatrixVisualization } from './components/MatrixVisualization';
 import { CompletedTasksList } from './components/CompletedTasksList';
 import { TaskDetail } from './components/TaskDetail';
 import { Task, CompletedTask } from './types';
+import NotificationService from './services/NotificationService';
 
 const TASKS_STORAGE_KEY = '@eisenhower_tasks';
 const COMPLETED_TASKS_KEY = '@eisenhower_completed_tasks';
@@ -61,21 +62,21 @@ const App = () => {
     const taskWithId = { ...newTask, id: Date.now().toString() };
     const updatedTasks = [...tasks, taskWithId];
     setTasks(updatedTasks);
-    
+
     try {
       await AsyncStorage.setItem(TASKS_STORAGE_KEY, JSON.stringify(updatedTasks));
     } catch (error) {
       console.error('Failed to save tasks:', error);
     }
   };
-  
+
   const handleTaskSelect = (task: Task) => {
     setSelectedTask(task);
     setCurrentView('detail');
   };
 
   const handleTaskUpdate = async (updatedTask: Task) => {
-    const updatedTasks = tasks.map(task => 
+    const updatedTasks = tasks.map(task =>
       task.id === updatedTask.id ? updatedTask : task
     );
     setTasks(updatedTasks);
@@ -100,6 +101,11 @@ const App = () => {
             const taskToComplete = tasks.find(t => t.id === taskId);
             if (!taskToComplete) return;
 
+            // 알림 취소
+            if (taskToComplete.notificationDate) {
+              NotificationService.cancelNotification(taskId);
+            }
+
             const completedTask: CompletedTask = {
               ...taskToComplete,
               completedDate: new Date()
@@ -110,7 +116,7 @@ const App = () => {
 
             setTasks(updatedTasks);
             setCompletedTasks(updatedCompletedTasks);
-            
+
             try {
               await Promise.all([
                 AsyncStorage.setItem(TASKS_STORAGE_KEY, JSON.stringify(updatedTasks)),
@@ -153,7 +159,7 @@ const App = () => {
   return (
     <SafeAreaView style={styles.safeArea}>
       <Text style={styles.title}>Eisenhower Matrix</Text>
-      
+
       {renderNavigationButtons()}
 
       <View style={styles.container}>
@@ -162,8 +168,8 @@ const App = () => {
         )}
 
         {currentView === 'matrix' && (
-          <MatrixVisualization 
-            tasks={tasks} 
+          <MatrixVisualization
+            tasks={tasks}
             onTaskSelect={handleTaskSelect}
           />
         )}
