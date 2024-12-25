@@ -8,12 +8,12 @@
 
 /* Begin PBXBuildFile section */
 		00E356F31AD99517003FC87E /* EisenhowerMatrixTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* EisenhowerMatrixTests.m */; };
-		0C80B921A6F3F58F76C31292 /* libPods-EisenhowerMatrix.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5DCACB8F33CDC322A6C60F78 /* libPods-EisenhowerMatrix.a */; };
 		13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.mm */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
-		7699B88040F8A987B510C191 /* libPods-EisenhowerMatrix-EisenhowerMatrixTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 19F6CBCC0A4E27FBF8BF4A61 /* libPods-EisenhowerMatrix-EisenhowerMatrixTests.a */; };
+		3EF2F71EDB20FECC47BD0710 /* libPods-EisenhowerMatrix-EisenhowerMatrixTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F648E811CDD73E3265149A14 /* libPods-EisenhowerMatrix-EisenhowerMatrixTests.a */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
+		87B97805E1AE021132FC3B85 /* libPods-EisenhowerMatrix.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BB10254DDC7C8C612C70A62 /* libPods-EisenhowerMatrix.a */; };
 		DB6440B9EAB58119FCC3316B /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */; };
 /* End PBXBuildFile section */
 
@@ -38,14 +38,14 @@
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = EisenhowerMatrix/Info.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = EisenhowerMatrix/main.m; sourceTree = "<group>"; };
 		13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = PrivacyInfo.xcprivacy; path = EisenhowerMatrix/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
-		19F6CBCC0A4E27FBF8BF4A61 /* libPods-EisenhowerMatrix-EisenhowerMatrixTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-EisenhowerMatrix-EisenhowerMatrixTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		3B4392A12AC88292D35C810B /* Pods-EisenhowerMatrix.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-EisenhowerMatrix.debug.xcconfig"; path = "Target Support Files/Pods-EisenhowerMatrix/Pods-EisenhowerMatrix.debug.xcconfig"; sourceTree = "<group>"; };
-		5709B34CF0A7D63546082F79 /* Pods-EisenhowerMatrix.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-EisenhowerMatrix.release.xcconfig"; path = "Target Support Files/Pods-EisenhowerMatrix/Pods-EisenhowerMatrix.release.xcconfig"; sourceTree = "<group>"; };
-		5B7EB9410499542E8C5724F5 /* Pods-EisenhowerMatrix-EisenhowerMatrixTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-EisenhowerMatrix-EisenhowerMatrixTests.debug.xcconfig"; path = "Target Support Files/Pods-EisenhowerMatrix-EisenhowerMatrixTests/Pods-EisenhowerMatrix-EisenhowerMatrixTests.debug.xcconfig"; sourceTree = "<group>"; };
-		5DCACB8F33CDC322A6C60F78 /* libPods-EisenhowerMatrix.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-EisenhowerMatrix.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		2BB10254DDC7C8C612C70A62 /* libPods-EisenhowerMatrix.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-EisenhowerMatrix.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		57E3335EED9C0F5822B8DBF1 /* Pods-EisenhowerMatrix.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-EisenhowerMatrix.release.xcconfig"; path = "Target Support Files/Pods-EisenhowerMatrix/Pods-EisenhowerMatrix.release.xcconfig"; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = EisenhowerMatrix/LaunchScreen.storyboard; sourceTree = "<group>"; };
-		89C6BE57DB24E9ADA2F236DE /* Pods-EisenhowerMatrix-EisenhowerMatrixTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-EisenhowerMatrix-EisenhowerMatrixTests.release.xcconfig"; path = "Target Support Files/Pods-EisenhowerMatrix-EisenhowerMatrixTests/Pods-EisenhowerMatrix-EisenhowerMatrixTests.release.xcconfig"; sourceTree = "<group>"; };
+		8E3CE48215F469AE452F3154 /* Pods-EisenhowerMatrix-EisenhowerMatrixTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-EisenhowerMatrix-EisenhowerMatrixTests.debug.xcconfig"; path = "Target Support Files/Pods-EisenhowerMatrix-EisenhowerMatrixTests/Pods-EisenhowerMatrix-EisenhowerMatrixTests.debug.xcconfig"; sourceTree = "<group>"; };
+		9BFADB724F6234827FD2D5CE /* Pods-EisenhowerMatrix.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-EisenhowerMatrix.debug.xcconfig"; path = "Target Support Files/Pods-EisenhowerMatrix/Pods-EisenhowerMatrix.debug.xcconfig"; sourceTree = "<group>"; };
+		B6C5FE1D8D5C1276ED5F9513 /* Pods-EisenhowerMatrix-EisenhowerMatrixTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-EisenhowerMatrix-EisenhowerMatrixTests.release.xcconfig"; path = "Target Support Files/Pods-EisenhowerMatrix-EisenhowerMatrixTests/Pods-EisenhowerMatrix-EisenhowerMatrixTests.release.xcconfig"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
+		F648E811CDD73E3265149A14 /* libPods-EisenhowerMatrix-EisenhowerMatrixTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-EisenhowerMatrix-EisenhowerMatrixTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -53,7 +53,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7699B88040F8A987B510C191 /* libPods-EisenhowerMatrix-EisenhowerMatrixTests.a in Frameworks */,
+				3EF2F71EDB20FECC47BD0710 /* libPods-EisenhowerMatrix-EisenhowerMatrixTests.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -61,7 +61,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0C80B921A6F3F58F76C31292 /* libPods-EisenhowerMatrix.a in Frameworks */,
+				87B97805E1AE021132FC3B85 /* libPods-EisenhowerMatrix.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -103,8 +103,8 @@
 			isa = PBXGroup;
 			children = (
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
-				5DCACB8F33CDC322A6C60F78 /* libPods-EisenhowerMatrix.a */,
-				19F6CBCC0A4E27FBF8BF4A61 /* libPods-EisenhowerMatrix-EisenhowerMatrixTests.a */,
+				2BB10254DDC7C8C612C70A62 /* libPods-EisenhowerMatrix.a */,
+				F648E811CDD73E3265149A14 /* libPods-EisenhowerMatrix-EisenhowerMatrixTests.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -143,10 +143,10 @@
 		BBD78D7AC51CEA395F1C20DB /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				3B4392A12AC88292D35C810B /* Pods-EisenhowerMatrix.debug.xcconfig */,
-				5709B34CF0A7D63546082F79 /* Pods-EisenhowerMatrix.release.xcconfig */,
-				5B7EB9410499542E8C5724F5 /* Pods-EisenhowerMatrix-EisenhowerMatrixTests.debug.xcconfig */,
-				89C6BE57DB24E9ADA2F236DE /* Pods-EisenhowerMatrix-EisenhowerMatrixTests.release.xcconfig */,
+				9BFADB724F6234827FD2D5CE /* Pods-EisenhowerMatrix.debug.xcconfig */,
+				57E3335EED9C0F5822B8DBF1 /* Pods-EisenhowerMatrix.release.xcconfig */,
+				8E3CE48215F469AE452F3154 /* Pods-EisenhowerMatrix-EisenhowerMatrixTests.debug.xcconfig */,
+				B6C5FE1D8D5C1276ED5F9513 /* Pods-EisenhowerMatrix-EisenhowerMatrixTests.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -158,12 +158,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 00E357021AD99517003FC87E /* Build configuration list for PBXNativeTarget "EisenhowerMatrixTests" */;
 			buildPhases = (
-				A55EABD7B0C7F3A422A6CC61 /* [CP] Check Pods Manifest.lock */,
+				AF1F033FED80DA98B58FB8BD /* [CP] Check Pods Manifest.lock */,
 				00E356EA1AD99517003FC87E /* Sources */,
 				00E356EB1AD99517003FC87E /* Frameworks */,
 				00E356EC1AD99517003FC87E /* Resources */,
-				C59DA0FBD6956966B86A3779 /* [CP] Embed Pods Frameworks */,
-				F6A41C54EA430FDDC6A6ED99 /* [CP] Copy Pods Resources */,
+				3A66F9F67FE9BDBFB79E9E79 /* [CP] Embed Pods Frameworks */,
+				C598F7698CEE1179F0983621 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -179,13 +179,13 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "EisenhowerMatrix" */;
 			buildPhases = (
-				C38B50BA6285516D6DCD4F65 /* [CP] Check Pods Manifest.lock */,
+				48043A730BCE0D20C72F80EE /* [CP] Check Pods Manifest.lock */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
-				00EEFC60759A1932668264C0 /* [CP] Embed Pods Frameworks */,
-				E235C05ADACE081382539298 /* [CP] Copy Pods Resources */,
+				B4BF0BD637DBEA517F2B29BC /* [CP] Embed Pods Frameworks */,
+				D9873261B939A068CE678C8A /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -269,46 +269,24 @@
 			shellPath = /bin/sh;
 			shellScript = "set -e\n\nWITH_ENVIRONMENT=\"$REACT_NATIVE_PATH/scripts/xcode/with-environment.sh\"\nREACT_NATIVE_XCODE=\"$REACT_NATIVE_PATH/scripts/react-native-xcode.sh\"\n\n/bin/sh -c \"$WITH_ENVIRONMENT $REACT_NATIVE_XCODE\"\n";
 		};
-		00EEFC60759A1932668264C0 /* [CP] Embed Pods Frameworks */ = {
+		3A66F9F67FE9BDBFB79E9E79 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-EisenhowerMatrix/Pods-EisenhowerMatrix-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+				"${PODS_ROOT}/Target Support Files/Pods-EisenhowerMatrix-EisenhowerMatrixTests/Pods-EisenhowerMatrix-EisenhowerMatrixTests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-EisenhowerMatrix/Pods-EisenhowerMatrix-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+				"${PODS_ROOT}/Target Support Files/Pods-EisenhowerMatrix-EisenhowerMatrixTests/Pods-EisenhowerMatrix-EisenhowerMatrixTests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-EisenhowerMatrix/Pods-EisenhowerMatrix-frameworks.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-EisenhowerMatrix-EisenhowerMatrixTests/Pods-EisenhowerMatrix-EisenhowerMatrixTests-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		A55EABD7B0C7F3A422A6CC61 /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-EisenhowerMatrix-EisenhowerMatrixTests-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-		C38B50BA6285516D6DCD4F65 /* [CP] Check Pods Manifest.lock */ = {
+		48043A730BCE0D20C72F80EE /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -330,41 +308,46 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		C59DA0FBD6956966B86A3779 /* [CP] Embed Pods Frameworks */ = {
+		AF1F033FED80DA98B58FB8BD /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-EisenhowerMatrix-EisenhowerMatrixTests/Pods-EisenhowerMatrix-EisenhowerMatrixTests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-EisenhowerMatrix-EisenhowerMatrixTests-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		B4BF0BD637DBEA517F2B29BC /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-EisenhowerMatrix/Pods-EisenhowerMatrix-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-EisenhowerMatrix-EisenhowerMatrixTests/Pods-EisenhowerMatrix-EisenhowerMatrixTests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+				"${PODS_ROOT}/Target Support Files/Pods-EisenhowerMatrix/Pods-EisenhowerMatrix-frameworks-${CONFIGURATION}-output-files.xcfilelist",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-EisenhowerMatrix-EisenhowerMatrixTests/Pods-EisenhowerMatrix-EisenhowerMatrixTests-frameworks.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-EisenhowerMatrix/Pods-EisenhowerMatrix-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		E235C05ADACE081382539298 /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-EisenhowerMatrix/Pods-EisenhowerMatrix-resources-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Copy Pods Resources";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-EisenhowerMatrix/Pods-EisenhowerMatrix-resources-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-EisenhowerMatrix/Pods-EisenhowerMatrix-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		F6A41C54EA430FDDC6A6ED99 /* [CP] Copy Pods Resources */ = {
+		C598F7698CEE1179F0983621 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -379,6 +362,23 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-EisenhowerMatrix-EisenhowerMatrixTests/Pods-EisenhowerMatrix-EisenhowerMatrixTests-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		D9873261B939A068CE678C8A /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-EisenhowerMatrix/Pods-EisenhowerMatrix-resources-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Copy Pods Resources";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-EisenhowerMatrix/Pods-EisenhowerMatrix-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-EisenhowerMatrix/Pods-EisenhowerMatrix-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -414,7 +414,7 @@
 /* Begin XCBuildConfiguration section */
 		00E356F61AD99517003FC87E /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 5B7EB9410499542E8C5724F5 /* Pods-EisenhowerMatrix-EisenhowerMatrixTests.debug.xcconfig */;
+			baseConfigurationReference = 8E3CE48215F469AE452F3154 /* Pods-EisenhowerMatrix-EisenhowerMatrixTests.debug.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -441,7 +441,7 @@
 		};
 		00E356F71AD99517003FC87E /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 89C6BE57DB24E9ADA2F236DE /* Pods-EisenhowerMatrix-EisenhowerMatrixTests.release.xcconfig */;
+			baseConfigurationReference = B6C5FE1D8D5C1276ED5F9513 /* Pods-EisenhowerMatrix-EisenhowerMatrixTests.release.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				COPY_PHASE_STRIP = NO;
@@ -465,7 +465,7 @@
 		};
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 3B4392A12AC88292D35C810B /* Pods-EisenhowerMatrix.debug.xcconfig */;
+			baseConfigurationReference = 9BFADB724F6234827FD2D5CE /* Pods-EisenhowerMatrix.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
@@ -493,7 +493,7 @@
 		};
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 5709B34CF0A7D63546082F79 /* Pods-EisenhowerMatrix.release.xcconfig */;
+			baseConfigurationReference = 57E3335EED9C0F5822B8DBF1 /* Pods-EisenhowerMatrix.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;

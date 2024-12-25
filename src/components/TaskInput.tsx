@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, Platform } from 'react-native';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, Platform, Animated, ScrollView } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import Slider from '@react-native-community/slider';
 import NotificationService from '../services/NotificationService';
@@ -16,34 +16,55 @@ export const TaskInput: React.FC<TaskInputProps> = ({ onTaskCreate }) => {
   const [importance, setImportance] = useState(5);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [notificationDate, setNotificationDate] = useState<Date | undefined>();
+  const [toastOpacity] = useState(new Animated.Value(0));
+
+  const showToast = () => {
+    Animated.sequence([
+      // 페이드 인
+      Animated.timing(toastOpacity, {
+        toValue: 1,
+        duration: 200,
+        useNativeDriver: true,
+      }),
+      // 1초 대기
+      Animated.delay(1000),
+      // 페이드 아웃
+      Animated.timing(toastOpacity, {
+        toValue: 0,
+        duration: 200,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  };
 
   const handleSubmit = () => {
-    if (title.trim()) {
-      const newTask: Task = {
-        id: Date.now().toString(),
-        title,
-        description,
-        urgency: Math.round(urgency),
-        importance: Math.round(importance),
-        date: new Date(),
+    const taskTitle = title.trim() || 'Untitled';
+
+    const newTask: Task = {
+      id: Date.now().toString(),
+      title: taskTitle,
+      description,
+      urgency: Math.round(urgency),
+      importance: Math.round(importance),
+      date: new Date(),
+      notificationDate,
+    };
+
+    if (notificationDate) {
+      NotificationService.scheduleNotification({
+        id: newTask.id,
+        title: newTask.title,
         notificationDate,
-      };
-
-      if (notificationDate) {
-        NotificationService.scheduleNotification({
-          id: newTask.id,
-          title: newTask.title,
-          notificationDate,
-        });
-      }
-
-      onTaskCreate(newTask);
-      setTitle('');
-      setDescription('');
-      setUrgency(5);
-      setImportance(5);
-      setNotificationDate(undefined);
+      });
     }
+
+    onTaskCreate(newTask);
+    setTitle('');
+    setDescription('');
+    setUrgency(5);
+    setImportance(5);
+    setNotificationDate(undefined);
+    showToast();
   };
 
   const handleNumberInput = (text: string, setter: (value: number) => void) => {
@@ -61,97 +82,115 @@ export const TaskInput: React.FC<TaskInputProps> = ({ onTaskCreate }) => {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.label}>Title</Text>
-      <TextInput
-        style={styles.input}
-        value={title}
-        onChangeText={setTitle}
-        placeholder="Enter task title"
-      />
-
-      <Text style={styles.label}>Description</Text>
-      <TextInput
-        style={[styles.input, styles.descriptionInput]}
-        value={description}
-        onChangeText={setDescription}
-        multiline
-        placeholder="Enter task description"
-      />
-
-      <Text style={styles.label}>Urgency: {Math.round(urgency)}</Text>
-      <View style={styles.sliderContainer}>
+    <ScrollView contentContainerStyle={styles.scrollContainer}>
+      <View style={styles.container}>
+        <Text style={styles.label}>Title</Text>
         <TextInput
-          style={styles.numberInput}
-          value={String(Math.round(urgency))}
-          onChangeText={(text) => handleNumberInput(text, setUrgency)}
-          keyboardType="numeric"
+          style={styles.input}
+          value={title}
+          onChangeText={setTitle}
+          placeholder="Enter task title"
         />
-        <Slider
-          style={styles.slider}
-          minimumValue={0}
-          maximumValue={10}
-          value={urgency}
-          onValueChange={setUrgency}
-          step={1}
-        />
-      </View>
 
-      <Text style={styles.label}>Importance: {Math.round(importance)}</Text>
-      <View style={styles.sliderContainer}>
+        <Text style={styles.label}>Description</Text>
         <TextInput
-          style={styles.numberInput}
-          value={String(Math.round(importance))}
-          onChangeText={(text) => handleNumberInput(text, setImportance)}
-          keyboardType="numeric"
+          style={[styles.input, styles.descriptionInput]}
+          value={description}
+          onChangeText={setDescription}
+          multiline
+          placeholder="Recommended are the task details and the due date"
         />
-        <Slider
-          style={styles.slider}
-          minimumValue={0}
-          maximumValue={10}
-          value={importance}
-          onValueChange={setImportance}
-          step={1}
-        />
-      </View>
 
-      <View style={styles.notificationSection}>
-        <Text style={styles.sectionTitle}>Notification Settings</Text>
+        <Text style={styles.label}>Urgency: {Math.round(urgency)}</Text>
+        <View style={styles.sliderContainer}>
+          <TextInput
+            style={styles.numberInput}
+            value={String(Math.round(urgency))}
+            onChangeText={(text) => handleNumberInput(text, setUrgency)}
+            keyboardType="numeric"
+          />
+          <Slider
+            style={styles.slider}
+            minimumValue={0}
+            maximumValue={10}
+            value={urgency}
+            onValueChange={setUrgency}
+            step={1}
+          />
+        </View>
+
+        <Text style={styles.label}>Importance: {Math.round(importance)}</Text>
+        <View style={styles.sliderContainer}>
+          <TextInput
+            style={styles.numberInput}
+            value={String(Math.round(importance))}
+            onChangeText={(text) => handleNumberInput(text, setImportance)}
+            keyboardType="numeric"
+          />
+          <Slider
+            style={styles.slider}
+            minimumValue={0}
+            maximumValue={10}
+            value={importance}
+            onValueChange={setImportance}
+            step={1}
+          />
+        </View>
+
+        <View style={styles.notificationSection}>
+          <Text style={styles.sectionTitle}>Notification Settings</Text>
+          <TouchableOpacity
+            style={styles.dateButton}
+            onPress={() => setShowDatePicker(true)}
+          >
+            <Text style={styles.dateButtonText}>
+              {notificationDate
+                ? notificationDate.toLocaleString()
+                : 'Set Notification Time'}
+            </Text>
+          </TouchableOpacity>
+
+          {showDatePicker && (
+            <DateTimePicker
+              value={notificationDate || new Date()}
+              mode="datetime"
+              display="default"
+              onChange={handleDateChange}
+              minimumDate={new Date()}
+            />
+          )}
+        </View>
+
         <TouchableOpacity
-          style={styles.dateButton}
-          onPress={() => setShowDatePicker(true)}
+          style={styles.button}
+          onPress={handleSubmit}
         >
-          <Text style={styles.dateButtonText}>
-            {notificationDate 
-              ? notificationDate.toLocaleString() 
-              : 'Set Notification Time'}
-          </Text>
+          <Text style={styles.buttonText}>Add Task</Text>
         </TouchableOpacity>
 
-        {showDatePicker && (
-          <DateTimePicker
-            value={notificationDate || new Date()}
-            mode="datetime"
-            display="default"
-            onChange={handleDateChange}
-            minimumDate={new Date()}
-          />
-        )}
+        <Animated.View
+          style={[
+            styles.toast,
+            {
+              opacity: toastOpacity
+            }
+          ]}
+        >
+          <Text style={styles.toastText}>Created successfully</Text>
+        </Animated.View>
       </View>
+    </ScrollView>
 
-      <TouchableOpacity
-        style={styles.button}
-        onPress={handleSubmit}
-      >
-        <Text style={styles.buttonText}>Add Task</Text>
-      </TouchableOpacity>
-    </View>
   );
 };
 
 const styles = StyleSheet.create({
+  scrollContainer: {
+    flexGrow: 1,
+  },
   container: {
     padding: 20,
+    paddingBottom: 40,
   },
   label: {
     fontSize: 16,
@@ -218,11 +257,29 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 5,
     marginBottom: 15,
-    minWidth: 200,  // 버튼 최소 너비 설정
+    minWidth: 200,
   },
   dateButtonText: {
     textAlign: 'center',
     color: '#007AFF',
     fontSize: 16,
+  },
+  toast: {
+    position: 'absolute',
+    top: '40%',
+    alignSelf: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 20,
+    width: 200,
+    height: 50,
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 1000,
+  },
+  toastText: {
+    color: 'white',
+    fontSize: 14,
   },
 });

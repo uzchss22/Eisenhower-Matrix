@@ -1,4 +1,4 @@
-# Eisenhower Matrix IOS App
+# Eisenhower Matrix App
 ---
 
 ### Description

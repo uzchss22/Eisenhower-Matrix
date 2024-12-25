@@ -51,7 +51,10 @@ const App = () => {
           ...task,
           date: new Date(task.date),
           completedDate: new Date(task.completedDate)
-        })).slice(-10)); // Keep only last 10 items
+        }))
+          .sort((a: CompletedTask, b: CompletedTask) =>
+            b.completedDate.getTime() - a.completedDate.getTime())
+          .slice(-30)); // Keep only last 30 items
       }
     } catch (error) {
       console.error('Failed to load data:', error);
@@ -101,7 +104,6 @@ const App = () => {
             const taskToComplete = tasks.find(t => t.id === taskId);
             if (!taskToComplete) return;
 
-            // 알림 취소
             if (taskToComplete.notificationDate) {
               NotificationService.cancelNotification(taskId);
             }
@@ -112,7 +114,9 @@ const App = () => {
             };
 
             const updatedTasks = tasks.filter(t => t.id !== taskId);
-            const updatedCompletedTasks = [...completedTasks, completedTask].slice(-10);
+            const updatedCompletedTasks = [...completedTasks, completedTask]
+              .sort((a, b) => b.completedDate.getTime() - a.completedDate.getTime())
+              .slice(-30);
 
             setTasks(updatedTasks);
             setCompletedTasks(updatedCompletedTasks);
@@ -127,6 +131,30 @@ const App = () => {
             }
             setCurrentView('matrix');
             setSelectedTask(null);
+          }
+        }
+      ]
+    );
+  };
+
+  const handleCompletedTaskDelete = async (taskId: string) => {
+    Alert.alert(
+      'Confirm Deletion',
+      'Are you sure you want to delete this completed task?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            const updatedCompletedTasks = completedTasks.filter(task => task.id !== taskId);
+            setCompletedTasks(updatedCompletedTasks);
+
+            try {
+              await AsyncStorage.setItem(COMPLETED_TASKS_KEY, JSON.stringify(updatedCompletedTasks));
+            } catch (error) {
+              console.error('Failed to save after deletion:', error);
+            }
           }
         }
       ]
@@ -156,6 +184,28 @@ const App = () => {
     </View>
   );
 
+  const handleAllCompletedTasksDelete = async () => {
+    Alert.alert(
+      'Confirm Deletion',
+      'Are you sure you want to delete all completed tasks?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete All',
+          style: 'destructive',
+          onPress: async () => {
+            setCompletedTasks([]);
+            try {
+              await AsyncStorage.setItem(COMPLETED_TASKS_KEY, JSON.stringify([]));
+            } catch (error) {
+              console.error('Failed to delete all completed tasks:', error);
+            }
+          }
+        }
+      ]
+    );
+  };
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <Text style={styles.title}>Eisenhower Matrix</Text>
@@ -175,8 +225,14 @@ const App = () => {
         )}
 
         {currentView === 'completed' && (
-          <CompletedTasksList tasks={completedTasks} />
+          <CompletedTasksList
+            tasks={completedTasks}
+            onDeleteTask={handleCompletedTaskDelete}
+            onDeleteAll={handleAllCompletedTasksDelete}
+          />
         )}
+
+
 
         {currentView === 'detail' && selectedTask && (
           <TaskDetail
