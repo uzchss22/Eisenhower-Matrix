@@ -7,6 +7,7 @@ export interface Task {
   date: Date;
   notificationDate?: Date;  
   notificationId?: string;  
+  color?: string;
 }
 
 export interface CompletedTask extends Task {

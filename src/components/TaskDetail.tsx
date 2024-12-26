@@ -12,6 +12,16 @@ interface TaskDetailProps {
   onClose: () => void;
 }
 
+const COLORS = [
+  { label: 'Red', value: '#FF0000' },
+  { label: 'Orange', value: '#FFA500' },
+  { label: 'Yellow', value: '#FFD700' },
+  { label: 'Green', value: '#008000' },
+  { label: 'Blue', value: '#0000FF' },
+  { label: 'Indigo', value: '#4B0082' },
+  { label: 'Purple', value: '#800080' },
+];
+
 export const TaskDetail: React.FC<TaskDetailProps> = ({
   task,
   onUpdate,
@@ -24,6 +34,7 @@ export const TaskDetail: React.FC<TaskDetailProps> = ({
   const [importance, setImportance] = useState(task.importance);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [notificationDate, setNotificationDate] = useState<Date | undefined>(task.notificationDate);
+  const [selectedColor, setSelectedColor] = useState(task.color || '#0000FF'); // 기본 파란색
 
   const handleSave = () => {
     if (task.notificationId) {
@@ -37,6 +48,7 @@ export const TaskDetail: React.FC<TaskDetailProps> = ({
       urgency: Math.round(urgency),
       importance: Math.round(importance),
       notificationDate,
+      color: selectedColor,
     };
 
     if (notificationDate) {
@@ -66,107 +78,129 @@ export const TaskDetail: React.FC<TaskDetailProps> = ({
 
   return (
     <ScrollView>
-    <View style={styles.container}>
-      <Text style={styles.header}>Task Details</Text>
+      <View style={styles.container}>
+        <Text style={styles.header}>Task Details</Text>
 
-      <Text style={styles.label}>Title</Text>
-      <TextInput
-        style={styles.input}
-        value={title}
-        onChangeText={setTitle}
-      />
-
-      <Text style={styles.label}>Description</Text>
-      <TextInput
-        style={[styles.input, styles.descriptionInput]}
-        value={description}
-        onChangeText={setDescription}
-        multiline
-      />
-
-      <Text style={styles.label}>Urgency: {Math.round(urgency)}</Text>
-      <View style={styles.sliderContainer}>
+        <Text style={styles.label}>Title</Text>
         <TextInput
-          style={styles.numberInput}
-          value={String(Math.round(urgency))}
-          onChangeText={(text) => handleNumberInput(text, setUrgency)}
-          keyboardType="numeric"
+          style={styles.input}
+          value={title}
+          onChangeText={setTitle}
         />
-        <Slider
-          style={styles.slider}
-          minimumValue={0}
-          maximumValue={10}
-          value={urgency}
-          onValueChange={setUrgency}
-          step={1}
-        />
-      </View>
 
-      <Text style={styles.label}>Importance: {Math.round(importance)}</Text>
-      <View style={styles.sliderContainer}>
+        <Text style={styles.label}>Description</Text>
         <TextInput
-          style={styles.numberInput}
-          value={String(Math.round(importance))}
-          onChangeText={(text) => handleNumberInput(text, setImportance)}
-          keyboardType="numeric"
+          style={[styles.input, styles.descriptionInput]}
+          value={description}
+          onChangeText={setDescription}
+          multiline
         />
-        <Slider
-          style={styles.slider}
-          minimumValue={0}
-          maximumValue={10}
-          value={importance}
-          onValueChange={setImportance}
-          step={1}
-        />
-      </View>
 
-      <View style={styles.notificationSection}>
-        <Text style={styles.sectionTitle}>Notification Settings</Text>
-        <TouchableOpacity
-          style={styles.dateButton}
-          onPress={() => setShowDatePicker(true)}
-        >
-          <Text style={styles.dateButtonText}>
-            {notificationDate 
-              ? notificationDate.toLocaleString() 
-              : 'Set Notification Time'}
-          </Text>
-        </TouchableOpacity>
-
-        {showDatePicker && (
-          <DateTimePicker
-            value={notificationDate || new Date()}
-            mode="datetime"
-            display="default"
-            onChange={handleDateChange}
-            minimumDate={new Date()}
+        <Text style={styles.label}>Urgency: {Math.round(urgency)}</Text>
+        <View style={styles.sliderContainer}>
+          <TextInput
+            style={styles.numberInput}
+            value={String(Math.round(urgency))}
+            onChangeText={(text) => handleNumberInput(text, setUrgency)}
+            keyboardType="numeric"
           />
-        )}
+          <Slider
+            style={styles.slider}
+            minimumValue={0}
+            maximumValue={10}
+            value={urgency}
+            onValueChange={setUrgency}
+            step={1}
+          />
+        </View>
+
+        <Text style={styles.label}>Importance: {Math.round(importance)}</Text>
+        <View style={styles.sliderContainer}>
+          <TextInput
+            style={styles.numberInput}
+            value={String(Math.round(importance))}
+            onChangeText={(text) => handleNumberInput(text, setImportance)}
+            keyboardType="numeric"
+          />
+          <Slider
+            style={styles.slider}
+            minimumValue={0}
+            maximumValue={10}
+            value={importance}
+            onValueChange={setImportance}
+            step={1}
+          />
+        </View>
+
+        <View style={styles.notificationSection}>
+          <Text style={styles.sectionTitle}>Notification Settings</Text>
+          <TouchableOpacity
+            style={styles.dateButton}
+            onPress={() => setShowDatePicker(true)}
+          >
+            <Text style={styles.dateButtonText}>
+              {notificationDate
+                ? notificationDate.toLocaleString()
+                : 'Set Notification Time'}
+            </Text>
+          </TouchableOpacity>
+
+          {showDatePicker && (
+            <DateTimePicker
+              value={notificationDate || new Date()}
+              mode="datetime"
+              display="default"
+              onChange={handleDateChange}
+              minimumDate={new Date()}
+            />
+          )}
+        </View>
+
+        <View style={styles.colorSection}>
+          <Text style={styles.label}>Task Color</Text>
+          <View style={styles.colorContainer}>
+            {COLORS.map((color) => (
+              <TouchableOpacity
+                key={color.value}
+                style={[
+                  styles.colorButton,
+                  { backgroundColor: color.value },
+                  selectedColor === color.value && styles.selectedColorButton,
+                ]}
+                onPress={() => setSelectedColor(color.value)}
+              >
+                {selectedColor === color.value && (
+                  <Text style={styles.checkmark}>✓</Text>
+                )}
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+
+
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity
+            style={[styles.button, styles.saveButton]}
+            onPress={handleSave}
+          >
+            <Text style={styles.buttonText}>Save</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.button, styles.deleteButton]}
+            onPress={() => onDelete(task.id)}
+          >
+            <Text style={styles.buttonText}>Complete</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.button, styles.cancelButton]}
+            onPress={onClose}
+          >
+            <Text style={styles.buttonText}>Cancel</Text>
+          </TouchableOpacity>
+        </View>
       </View>
-
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity
-          style={[styles.button, styles.saveButton]}
-          onPress={handleSave}
-        >
-          <Text style={styles.buttonText}>Save</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[styles.button, styles.deleteButton]}
-          onPress={() => onDelete(task.id)}
-        >
-          <Text style={styles.buttonText}>Complete</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[styles.button, styles.cancelButton]}
-          onPress={onClose}
-        >
-          <Text style={styles.buttonText}>Cancel</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
     </ScrollView>
   );
 };
@@ -270,5 +304,34 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: '#007AFF',
     fontSize: 16,
+  },
+  colorSection: {
+    marginBottom: 20,
+  },
+  colorContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 10,
+    marginTop: 10,
+  },
+  colorButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: 'transparent',
+  },
+  selectedColorButton: {
+    borderColor: '#000',
+  },
+  checkmark: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+    textShadowColor: 'rgba(0, 0, 0, 0.5)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 1,
   },
 });

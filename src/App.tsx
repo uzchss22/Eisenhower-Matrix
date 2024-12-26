@@ -1,10 +1,3 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
-
 import React, { useState, useEffect } from 'react';
 import { SafeAreaView, View, StyleSheet, TouchableOpacity, Text, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -23,7 +16,7 @@ type ViewType = 'input' | 'matrix' | 'completed' | 'detail';
 const App = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [completedTasks, setCompletedTasks] = useState<CompletedTask[]>([]);
-  const [currentView, setCurrentView] = useState<ViewType>('input');
+  const [currentView, setCurrentView] = useState<ViewType>('matrix');
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
 
   useEffect(() => {
@@ -54,7 +47,7 @@ const App = () => {
         }))
           .sort((a: CompletedTask, b: CompletedTask) =>
             b.completedDate.getTime() - a.completedDate.getTime())
-          .slice(-30)); // Keep only last 30 items
+          .slice(-30));
       }
     } catch (error) {
       console.error('Failed to load data:', error);
@@ -90,6 +83,22 @@ const App = () => {
     }
     setCurrentView('matrix');
     setSelectedTask(null);
+  };
+
+  const handleDeleteAllTasks = async () => {
+    // Cancel all notifications
+    tasks.forEach(task => {
+      if (task.notificationDate) {
+        NotificationService.cancelNotification(task.id);
+      }
+    });
+
+    setTasks([]);
+    try {
+      await AsyncStorage.setItem(TASKS_STORAGE_KEY, JSON.stringify([]));
+    } catch (error) {
+      console.error('Failed to delete all tasks:', error);
+    }
   };
 
   const handleTaskDelete = async (taskId: string) => {
@@ -161,29 +170,6 @@ const App = () => {
     );
   };
 
-  const renderNavigationButtons = () => (
-    <View style={styles.navigationContainer}>
-      <TouchableOpacity
-        style={styles.navButton}
-        onPress={() => setCurrentView('input')}
-      >
-        <Text style={styles.navButtonText}>Add Task</Text>
-      </TouchableOpacity>
-      <TouchableOpacity
-        style={styles.navButton}
-        onPress={() => setCurrentView('matrix')}
-      >
-        <Text style={styles.navButtonText}>View Matrix</Text>
-      </TouchableOpacity>
-      <TouchableOpacity
-        style={styles.navButton}
-        onPress={() => setCurrentView('completed')}
-      >
-        <Text style={styles.navButtonText}>Completed Tasks</Text>
-      </TouchableOpacity>
-    </View>
-  );
-
   const handleAllCompletedTasksDelete = async () => {
     Alert.alert(
       'Confirm Deletion',
@@ -206,9 +192,52 @@ const App = () => {
     );
   };
 
+  const renderNavigationButtons = () => (
+    <View style={styles.navigationContainer}>
+      <TouchableOpacity
+        style={[
+          styles.navButton,
+          currentView === 'input' && styles.navButtonActive
+        ]}
+        onPress={() => setCurrentView('input')}
+      >
+        <Text style={[
+          styles.navButtonText,
+          currentView === 'input' && styles.navButtonTextActive
+        ]}>Add Task</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={[
+          styles.navButton,
+          currentView === 'matrix' && styles.navButtonActive
+        ]}
+        onPress={() => setCurrentView('matrix')}
+      >
+        <Text style={[
+          styles.navButtonText,
+          currentView === 'matrix' && styles.navButtonTextActive
+        ]}>View Matrix</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={[
+          styles.navButton,
+          currentView === 'completed' && styles.navButtonActive
+        ]}
+        onPress={() => setCurrentView('completed')}
+      >
+        <Text style={[
+          styles.navButtonText,
+          currentView === 'completed' && styles.navButtonTextActive
+        ]}>Completed Tasks</Text>
+      </TouchableOpacity>
+    </View>
+  );
+
   return (
     <SafeAreaView style={styles.safeArea}>
-      <Text style={styles.title}>Eisenhower Matrix</Text>
+      <View style={styles.header}>
+        <Text style={styles.title}>Eisenhower Matrix</Text>
+      </View>
 
       {renderNavigationButtons()}
 
@@ -221,6 +250,7 @@ const App = () => {
           <MatrixVisualization
             tasks={tasks}
             onTaskSelect={handleTaskSelect}
+            onDeleteAll={handleDeleteAllTasks}
           />
         )}
 
@@ -231,8 +261,6 @@ const App = () => {
             onDeleteAll={handleAllCompletedTasksDelete}
           />
         )}
-
-
 
         {currentView === 'detail' && selectedTask && (
           <TaskDetail
@@ -253,35 +281,67 @@ const App = () => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: 'white',
+    backgroundColor: '#F8F9FA',  // 밝은 배경색
   },
   container: {
     flex: 1,
+    marginTop: 10,
+  },
+  header: {
+    padding: 20,
+    backgroundColor: 'white',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 3,
   },
   title: {
-    fontSize: 24,
-    fontWeight: 'bold',
+    fontSize: 28,
+    fontWeight: '600',
     textAlign: 'center',
-    marginVertical: 20,
+    color: '#2C3E50',  // 진한 회색
+    // marginBottom: 5,
   },
   navigationContainer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
     padding: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
+    backgroundColor: 'white',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 3,
   },
   navButton: {
-    backgroundColor: '#007AFF',
-    padding: 10,
-    borderRadius: 5,
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    borderRadius: 8,
+    backgroundColor: 'transparent',
     minWidth: 100,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+  },
+  navButtonActive: {
+    backgroundColor: '#3B82F6',  // 파란색
+    borderColor: '#3B82F6',
   },
   navButtonText: {
-    color: 'white',
+    color: '#6B7280',  // 회색
     textAlign: 'center',
     fontSize: 14,
-    fontWeight: 'bold',
+    fontWeight: '500',
+  },
+  navButtonTextActive: {
+    color: 'white',
+    fontWeight: '600',
   },
 });
 

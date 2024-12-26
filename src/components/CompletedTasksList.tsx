@@ -29,7 +29,13 @@ export const CompletedTasksList: React.FC<CompletedTasksListProps> = ({
       <FlatList
         data={tasks}
         renderItem={({ item }) => (
-          <View style={styles.taskItem}>
+          <View style={[
+            styles.taskItem,
+            {
+              borderLeftWidth: 4,
+              borderLeftColor: item.color || "#3B82F6"
+            }
+          ]}>
             <View style={styles.taskHeader}>
               <Text style={styles.taskTitle}>{item.title}</Text>
               <TouchableOpacity
@@ -44,7 +50,7 @@ export const CompletedTasksList: React.FC<CompletedTasksListProps> = ({
               Urgency: {Math.round(item.urgency)} | Importance: {Math.round(item.importance)}
             </Text>
             <Text style={styles.taskDate}>
-              Completed: {item.completedDate.toLocaleDateString()}
+              Completed: {item.completedDate.toLocaleString()}
             </Text>
           </View>
         )}
@@ -75,6 +81,7 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 5,
     marginBottom: 10,
+    borderColor: '#E5E7EB',
   },
   taskHeader: {
     flexDirection: 'row',

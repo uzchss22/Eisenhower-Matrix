@@ -9,6 +9,16 @@ interface TaskInputProps {
   onTaskCreate: (task: Task) => void;
 }
 
+const COLORS = [
+  { label: 'Red', value: '#FF0000' },
+  { label: 'Orange', value: '#FFA500' },
+  { label: 'Yellow', value: '#FFD700' },
+  { label: 'Green', value: '#008000' },
+  { label: 'Blue', value: '#0000FF' },
+  { label: 'Indigo', value: '#4B0082' },
+  { label: 'Purple', value: '#800080' },
+];
+
 export const TaskInput: React.FC<TaskInputProps> = ({ onTaskCreate }) => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -16,6 +26,7 @@ export const TaskInput: React.FC<TaskInputProps> = ({ onTaskCreate }) => {
   const [importance, setImportance] = useState(5);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [notificationDate, setNotificationDate] = useState<Date | undefined>();
+  const [selectedColor, setSelectedColor] = useState(COLORS[4].value); // Default: Blue
   const [toastOpacity] = useState(new Animated.Value(0));
 
   const showToast = () => {
@@ -48,6 +59,7 @@ export const TaskInput: React.FC<TaskInputProps> = ({ onTaskCreate }) => {
       importance: Math.round(importance),
       date: new Date(),
       notificationDate,
+      color: selectedColor as string,
     };
 
     if (notificationDate) {
@@ -159,6 +171,27 @@ export const TaskInput: React.FC<TaskInputProps> = ({ onTaskCreate }) => {
               minimumDate={new Date()}
             />
           )}
+        </View>
+
+        <View style={styles.colorSection}>
+          <Text style={styles.label}>Task Color</Text>
+          <View style={styles.colorContainer}>
+            {COLORS.map((color) => (
+              <TouchableOpacity
+                key={color.value}
+                style={[
+                  styles.colorButton,
+                  { backgroundColor: color.value },
+                  selectedColor === color.value && styles.selectedColorButton,
+                ]}
+                onPress={() => setSelectedColor(color.value)}
+              >
+                {selectedColor === color.value && (
+                  <Text style={styles.checkmark}>✓</Text>
+                )}
+              </TouchableOpacity>
+            ))}
+          </View>
         </View>
 
         <TouchableOpacity
@@ -281,5 +314,34 @@ const styles = StyleSheet.create({
   toastText: {
     color: 'white',
     fontSize: 14,
+  },
+  colorSection: {
+    marginBottom: 20,
+  },
+  colorContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 10,
+    marginTop: 10,
+  },
+  colorButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: 'transparent',
+  },
+  selectedColorButton: {
+    borderColor: '#000',
+  },
+  checkmark: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+    textShadowColor: 'rgba(0, 0, 0, 0.5)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 1,
   },
 });
