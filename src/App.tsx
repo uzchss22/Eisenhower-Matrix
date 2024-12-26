@@ -330,7 +330,7 @@ const styles = StyleSheet.create({
     borderColor: '#E5E7EB',
   },
   navButtonActive: {
-    backgroundColor: '#3B82F6',  // 파란색
+    backgroundColor: '#3B82F6',
     borderColor: '#3B82F6',
   },
   navButtonText: {

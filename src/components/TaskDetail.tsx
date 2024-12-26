@@ -13,13 +13,13 @@ interface TaskDetailProps {
 }
 
 const COLORS = [
-  { label: 'Red', value: '#FF0000' },
-  { label: 'Orange', value: '#FFA500' },
-  { label: 'Yellow', value: '#FFD700' },
-  { label: 'Green', value: '#008000' },
-  { label: 'Blue', value: '#0000FF' },
-  { label: 'Indigo', value: '#4B0082' },
-  { label: 'Purple', value: '#800080' },
+  { label: 'Red', value: '#FF3A2D' },
+  { label: 'Orange', value: '#FF9500' },
+  { label: 'Yellow', value: '#FFCC00' },
+  { label: 'Green', value: '#4CD964' },
+  { label: 'Blue', value: '#5AC8FA' },
+  { label: 'Indigo', value: '#5856D6' },
+  { label: 'Purple', value: '#9966CC' },
 ];
 
 export const TaskDetail: React.FC<TaskDetailProps> = ({
@@ -111,6 +111,9 @@ export const TaskDetail: React.FC<TaskDetailProps> = ({
             value={urgency}
             onValueChange={setUrgency}
             step={1}
+            minimumTrackTintColor="#3B82F6" 
+            maximumTrackTintColor="#D3D3D3"
+            thumbTintColor="#3B82F6"
           />
         </View>
 
@@ -129,6 +132,9 @@ export const TaskDetail: React.FC<TaskDetailProps> = ({
             value={importance}
             onValueChange={setImportance}
             step={1}
+            minimumTrackTintColor="#3B82F6" 
+            maximumTrackTintColor="#D3D3D3"
+            thumbTintColor="#3B82F6"
           />
         </View>
 
@@ -263,13 +269,13 @@ const styles = StyleSheet.create({
     minWidth: 100,
   },
   saveButton: {
-    backgroundColor: '#007AFF',
+    backgroundColor: '#3B82F6',
   },
   deleteButton: {
-    backgroundColor: '#FF3B30',
+    backgroundColor: '#ff5047',
   },
   cancelButton: {
-    backgroundColor: '#8E8E93',
+    backgroundColor: 'rgb(142,142,147)',
   },
   buttonText: {
     color: 'white',
@@ -291,7 +297,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 15,
-    color: '#007AFF',
+    color: 'black',
   },
   dateButton: {
     backgroundColor: '#f0f0f0',

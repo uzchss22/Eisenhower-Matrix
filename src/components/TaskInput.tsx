@@ -10,13 +10,13 @@ interface TaskInputProps {
 }
 
 const COLORS = [
-  { label: 'Red', value: '#FF0000' },
-  { label: 'Orange', value: '#FFA500' },
-  { label: 'Yellow', value: '#FFD700' },
-  { label: 'Green', value: '#008000' },
-  { label: 'Blue', value: '#0000FF' },
-  { label: 'Indigo', value: '#4B0082' },
-  { label: 'Purple', value: '#800080' },
+  { label: 'Red', value: '#FF3A2D' },
+  { label: 'Orange', value: '#FF9500' },
+  { label: 'Yellow', value: '#FFCC00' },
+  { label: 'Green', value: '#4CD964' },
+  { label: 'Blue', value: '#5AC8FA' },
+  { label: 'Indigo', value: '#5856D6' },
+  { label: 'Purple', value: '#9966CC' },
 ];
 
 export const TaskInput: React.FC<TaskInputProps> = ({ onTaskCreate }) => {
@@ -128,6 +128,9 @@ export const TaskInput: React.FC<TaskInputProps> = ({ onTaskCreate }) => {
             value={urgency}
             onValueChange={setUrgency}
             step={1}
+            minimumTrackTintColor="#3B82F6" 
+            maximumTrackTintColor="#D3D3D3"
+            thumbTintColor="#3B82F6"
           />
         </View>
 
@@ -146,6 +149,9 @@ export const TaskInput: React.FC<TaskInputProps> = ({ onTaskCreate }) => {
             value={importance}
             onValueChange={setImportance}
             step={1}
+            minimumTrackTintColor="#3B82F6" 
+            maximumTrackTintColor="#D3D3D3"
+            thumbTintColor="#3B82F6"
           />
         </View>
 
@@ -259,7 +265,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   button: {
-    backgroundColor: '#007AFF',
+    backgroundColor: '#3B82F6',
     padding: 15,
     borderRadius: 5,
     alignItems: 'center',
@@ -283,7 +289,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 15,
-    color: '#007AFF',
+    color: 'black',
   },
   dateButton: {
     backgroundColor: '#f0f0f0',

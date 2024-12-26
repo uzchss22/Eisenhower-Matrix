@@ -1,6 +1,8 @@
 import React from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
 import { CompletedTask } from '../types';
+import { Trash2 } from 'lucide-react-native';
+
 
 interface CompletedTasksListProps {
   tasks: CompletedTask[];
@@ -42,7 +44,7 @@ export const CompletedTasksList: React.FC<CompletedTasksListProps> = ({
                 style={styles.deleteButton}
                 onPress={() => onDeleteTask(item.id)}
               >
-                <Text style={styles.deleteButtonText}>Delete</Text>
+                <Trash2 size={16} color="white" strokeWidth={2.5} />
               </TouchableOpacity>
             </View>
             <Text style={styles.taskDescription}>{item.description}</Text>
@@ -77,11 +79,19 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   taskItem: {
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#ffffff',
     padding: 15,
     borderRadius: 5,
     marginBottom: 10,
     borderColor: '#E5E7EB',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 3,
   },
   taskHeader: {
     flexDirection: 'row',
@@ -95,16 +105,14 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   deleteButton: {
-    backgroundColor: '#FF3B30',
-    padding: 5,
-    borderRadius: 5,
+    backgroundColor: '#ff5047',
+    padding: 6,
+    borderRadius: 6,
     marginLeft: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  deleteButtonText: {
-    color: 'white',
-    fontSize: 12,
-    fontWeight: 'bold',
-  },
+
   taskDescription: {
     fontSize: 14,
     color: '#666',
@@ -139,7 +147,7 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   deleteAllButton: {
-    backgroundColor: '#FF3B30',
+    backgroundColor: '#ff5047',
     padding: 8,
     borderRadius: 5,
   },

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, StyleSheet, Dimensions, TouchableOpacity, Text, ScrollView, Modal, TextInput, Alert } from 'react-native';
 import Svg, { Circle, Line, Text as SvgText, Rect } from 'react-native-svg';
-import { Trash2, MoreVertical } from 'lucide-react-native';
+import { MoreVertical } from 'lucide-react-native';
 import { Task } from '../types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -192,40 +192,51 @@ export const MatrixVisualization: React.FC<MatrixVisualizationProps> = ({
     </Modal>
   );
 
+  const quadrants = [
+    { x: padding, y: padding }, // 1st quadrant
+    { x: padding + quadrantWidth, y: padding }, // 2nd quadrant
+    { x: padding, y: padding + quadrantHeight }, // 3rd quadrant
+    { x: padding + quadrantWidth, y: padding + quadrantHeight }, // 4th quadrant
+  ];
+
   const renderGraph = () => (
     <Svg width={width} height={height}>
-      {/* 사분면 배경 */}
-      <Rect
-        x={padding}
-        y={padding}
-        width={quadrantWidth}
-        height={quadrantHeight}
-        fill="#4ADE8020"  // 연한 초록색
+      {/* 1. 사분면 배경 */}
+      <Svg width={width} height={height}>
+        {quadrants.map((quadrant, index) => (
+          <Rect
+            key={index}
+            x={quadrant.x}
+            y={quadrant.y}
+            width={quadrantWidth}
+            height={quadrantHeight}
+            fill="#fafafa"
+            opacity="0.8"
+          />
+        ))}
+      </Svg>
+
+      {/* 2. 중간 분할선 */}
+      <Line
+        x1={padding + quadrantWidth}
+        y1={padding}
+        x2={padding + quadrantWidth}
+        y2={height - padding}
+        stroke="#242424"
+        strokeWidth="0.3"
+        strokeDasharray="1,0"
       />
-      <Rect
-        x={padding + quadrantWidth}
-        y={padding}
-        width={quadrantWidth}
-        height={quadrantHeight}
-        fill="#FF634720"  // 연한 빨간색
-      />
-      <Rect
-        x={padding}
-        y={padding + quadrantHeight}
-        width={quadrantWidth}
-        height={quadrantHeight}
-        fill="#94A3B820"  // 연한 회색
-      />
-      <Rect
-        x={padding + quadrantWidth}
-        y={padding + quadrantHeight}
-        width={quadrantWidth}
-        height={quadrantHeight}
-        fill="#F6AD5520"  // 연한 주황색
+      <Line
+        x1={padding}
+        y1={padding + quadrantHeight}
+        x2={width - padding}
+        y2={padding + quadrantHeight}
+        stroke="#242424"
+        strokeWidth="0.3"
+        strokeDasharray="1,0"
       />
 
-
-      {/* 축 */}
+      {/* 3. X, Y 축 (실선) */}
       <Line
         x1={padding}
         y1={height - padding}
@@ -243,27 +254,53 @@ export const MatrixVisualization: React.FC<MatrixVisualizationProps> = ({
         strokeWidth="1.5"
       />
 
-      {/* 중간 분할선 */}
+      {/* 4. 격자선 */}
+      {[...Array(21)].map((_, index) => (
+        <React.Fragment key={`grid-${index}`}>
+          {/* 수직 격자선 */}
+          <Line
+            x1={padding + (index / 20) * (width - 2 * padding)}
+            y1={padding}
+            x2={padding + (index / 20) * (width - 2 * padding)}
+            y2={height - padding}
+            stroke="#000000"
+            strokeWidth="0.3"
+            strokeDasharray="2,2"
+            strokeOpacity={index % 2 === 0 ? "0.6" : "0.3"}
+          />
+          {/* 수평 격자선 */}
+          <Line
+            x1={padding}
+            y1={height - (padding + (index / 20) * (height - 2 * padding))}
+            x2={width - padding}
+            y2={height - (padding + (index / 20) * (height - 2 * padding))}
+            stroke="#000000"
+            strokeWidth="0.3"
+            strokeDasharray="2,2"
+            strokeOpacity={index % 2 === 0 ? "0.6" : "0.3"}
+          />
+        </React.Fragment>
+      ))}
+
+      {/* 5. X, Y 축 한번 더 그리기 (격자 위에) */}
       <Line
-        x1={padding + quadrantWidth}
-        y1={padding}
-        x2={padding + quadrantWidth}
+        x1={padding}
+        y1={height - padding}
+        x2={width - padding}
         y2={height - padding}
-        stroke="#E5E7EB"
-        strokeWidth="1"
-        strokeDasharray="5,5"
+        stroke="#2C3E50"
+        strokeWidth="1.5"
       />
       <Line
         x1={padding}
-        y1={padding + quadrantHeight}
-        x2={width - padding}
-        y2={padding + quadrantHeight}
-        stroke="#E5E7EB"
-        strokeWidth="1"
-        strokeDasharray="5,5"
+        y1={padding}
+        x2={padding}
+        y2={height - padding}
+        stroke="#2C3E50"
+        strokeWidth="1.5"
       />
 
-      {/* 축 레이블 */}
+      {/* 6. 축 레이블 */}
       <SvgText
         x={width - padding + 10}
         y={height - padding + 25}
@@ -273,7 +310,6 @@ export const MatrixVisualization: React.FC<MatrixVisualizationProps> = ({
       >
         Urgency
       </SvgText>
-
       <SvgText
         x={padding - 25}
         y={padding - 10}
@@ -284,10 +320,9 @@ export const MatrixVisualization: React.FC<MatrixVisualizationProps> = ({
         Importance
       </SvgText>
 
-      {/* 축 눈금 */}
+      {/* 7. 축 눈금 */}
       {[0, 2.5, 5, 7.5, 10].map((value) => (
         <React.Fragment key={value}>
-          {/* X축 눈금 */}
           <Line
             x1={padding + (value / 10) * (width - 2 * padding)}
             y1={height - padding}
@@ -305,8 +340,6 @@ export const MatrixVisualization: React.FC<MatrixVisualizationProps> = ({
           >
             {Math.round(value)}
           </SvgText>
-
-          {/* Y축 눈금 */}
           <Line
             x1={padding - 5}
             y1={height - (padding + (value / 10) * (height - 2 * padding))}
@@ -328,26 +361,25 @@ export const MatrixVisualization: React.FC<MatrixVisualizationProps> = ({
         </React.Fragment>
       ))}
 
-      {/* Task 그룹 렌더링 */}
-      {groupTasks().map((group, index) => {
-        // 그룹의 대표 색상 결정 (첫 번째 태스크의 색상 또는 기본 파란색)
-        const groupColor = group.tasks[0]?.color || "#3B82F6";
 
+      {/* 8. Task 그룹 렌더링 */}
+      {groupTasks().map((group, index) => {
+        const groupColor = group.tasks[0]?.color || "#5AC8FA";
         return (
           <React.Fragment key={index}>
             <Circle
               cx={group.x}
               cy={group.y}
-              r={8}
-              fill="white"
-              stroke={groupColor}
-              strokeWidth="2"
+              r={7}
+              fill={groupColor}
             />
             <Circle
               cx={group.x}
               cy={group.y}
-              r={6}
+              r={5}
               fill={groupColor}
+              stroke="white"
+              strokeWidth="1"
             />
             <Circle
               cx={group.x}
@@ -395,48 +427,48 @@ export const MatrixVisualization: React.FC<MatrixVisualizationProps> = ({
         {renderGraph()}
         <Text style={styles.helperText}>Click a graph item to see details.</Text>
       </View>
-<View style={styles.listContainer}>
-  <View style={styles.listHeader}>
-    <Text style={styles.listTitle}>Task List</Text>
-    <TouchableOpacity
-      style={styles.sortButton}
-      onPress={() => setSortMenuVisible(!sortMenuVisible)}
-    >
-      <MoreVertical size={18} color="#6B7280" />
-    </TouchableOpacity>
-    {sortMenuVisible && (
-      <View style={styles.sortMenu}>
-        <TouchableOpacity
-          style={[
-            styles.sortMenuItem,
-            sortBy === 'urgency' && styles.sortMenuItemActive
-          ]}
-          onPress={() => handleSortChange('urgency')}
-        >
-          <Text style={styles.sortMenuText}>Sort by Urgency</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[
-            styles.sortMenuItem,
-            sortBy === 'importance' && styles.sortMenuItemActive
-          ]}
-          onPress={() => handleSortChange('importance')}
-        >
-          <Text style={styles.sortMenuText}>Sort by Importance</Text>
-        </TouchableOpacity>
-        <View style={styles.sortMenuDivider} />
-        <TouchableOpacity
-          style={styles.sortMenuItem}
-          onPress={() => {
-            setSortMenuVisible(false);
-            handleDeleteAll();
-          }}
-        >
-          <Text style={styles.deleteMenuText}>Delete All Tasks</Text>
-        </TouchableOpacity>
-      </View>
-    )}
-  </View>
+      <View style={styles.listContainer}>
+        <View style={styles.listHeader}>
+          <Text style={styles.listTitle}>Task List</Text>
+          <TouchableOpacity
+            style={styles.sortButton}
+            onPress={() => setSortMenuVisible(!sortMenuVisible)}
+          >
+            <MoreVertical size={18} color="#6B7280" />
+          </TouchableOpacity>
+          {sortMenuVisible && (
+            <View style={styles.sortMenu}>
+              <TouchableOpacity
+                style={[
+                  styles.sortMenuItem,
+                  sortBy === 'urgency' && styles.sortMenuItemActive
+                ]}
+                onPress={() => handleSortChange('urgency')}
+              >
+                <Text style={styles.sortMenuText}>Sort by Urgency</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[
+                  styles.sortMenuItem,
+                  sortBy === 'importance' && styles.sortMenuItemActive
+                ]}
+                onPress={() => handleSortChange('importance')}
+              >
+                <Text style={styles.sortMenuText}>Sort by Importance</Text>
+              </TouchableOpacity>
+              <View style={styles.sortMenuDivider} />
+              <TouchableOpacity
+                style={styles.sortMenuItem}
+                onPress={() => {
+                  setSortMenuVisible(false);
+                  handleDeleteAll();
+                }}
+              >
+                <Text style={styles.deleteMenuText}>Delete All Tasks</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+        </View>
         {getSortedTasks(tasks).map((task) => (
           <TouchableOpacity
             key={task.id}
