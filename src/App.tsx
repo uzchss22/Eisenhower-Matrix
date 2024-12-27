@@ -1,17 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { SafeAreaView, View, StyleSheet, TouchableOpacity, Text, Alert } from 'react-native';
+import { SafeAreaView, View, StyleSheet, TouchableOpacity, Text, Alert, ScrollView } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { TaskInput } from './components/TaskInput';
 import { MatrixVisualization } from './components/MatrixVisualization';
 import { CompletedTasksList } from './components/CompletedTasksList';
 import { TaskDetail } from './components/TaskDetail';
+import { CalendarView } from './components/CalendarView';
 import { Task, CompletedTask } from './types';
 import NotificationService from './services/NotificationService';
 
 const TASKS_STORAGE_KEY = '@eisenhower_tasks';
 const COMPLETED_TASKS_KEY = '@eisenhower_completed_tasks';
 
-type ViewType = 'input' | 'matrix' | 'completed' | 'detail';
+type ViewType = 'input' | 'matrix' | 'completed' | 'detail' | 'calendar';
 
 const App = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -34,7 +35,8 @@ const App = () => {
         const parsedTasks = JSON.parse(savedTasks);
         setTasks(parsedTasks.map((task: any) => ({
           ...task,
-          date: new Date(task.date)
+          date: new Date(task.date),
+          notificationDate: task.notificationDate ? new Date(task.notificationDate) : undefined
         })));
       }
 
@@ -43,6 +45,7 @@ const App = () => {
         setCompletedTasks(parsedCompletedTasks.map((task: any) => ({
           ...task,
           date: new Date(task.date),
+          notificationDate: task.notificationDate ? new Date(task.notificationDate) : undefined,
           completedDate: new Date(task.completedDate)
         }))
           .sort((a: CompletedTask, b: CompletedTask) =>
@@ -86,7 +89,6 @@ const App = () => {
   };
 
   const handleDeleteAllTasks = async () => {
-    // Cancel all notifications
     tasks.forEach(task => {
       if (task.notificationDate) {
         NotificationService.cancelNotification(task.id);
@@ -193,43 +195,33 @@ const App = () => {
   };
 
   const renderNavigationButtons = () => (
-    <View style={styles.navigationContainer}>
-      <TouchableOpacity
-        style={[
-          styles.navButton,
-          currentView === 'input' && styles.navButtonActive
-        ]}
-        onPress={() => setCurrentView('input')}
+    <View style={styles.navigationWrapper}>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.navigationContainer}
       >
-        <Text style={[
-          styles.navButtonText,
-          currentView === 'input' && styles.navButtonTextActive
-        ]}>Add Task</Text>
-      </TouchableOpacity>
-      <TouchableOpacity
-        style={[
-          styles.navButton,
-          currentView === 'matrix' && styles.navButtonActive
-        ]}
-        onPress={() => setCurrentView('matrix')}
-      >
-        <Text style={[
-          styles.navButtonText,
-          currentView === 'matrix' && styles.navButtonTextActive
-        ]}>View Matrix</Text>
-      </TouchableOpacity>
-      <TouchableOpacity
-        style={[
-          styles.navButton,
-          currentView === 'completed' && styles.navButtonActive
-        ]}
-        onPress={() => setCurrentView('completed')}
-      >
-        <Text style={[
-          styles.navButtonText,
-          currentView === 'completed' && styles.navButtonTextActive
-        ]}>Completed Tasks</Text>
-      </TouchableOpacity>
+        {[
+          { view: 'input', label: 'Add Task' },
+          { view: 'matrix', label: 'View Matrix' },
+          { view: 'completed', label: 'Completed' },
+          { view: 'calendar', label: 'Calendar' }
+        ].map(({ view, label }) => (
+          <TouchableOpacity
+            key={view}
+            style={[
+              styles.navButton,
+              currentView === view && styles.navButtonActive
+            ]}
+            onPress={() => setCurrentView(view as ViewType)}
+          >
+            <Text style={[
+              styles.navButtonText,
+              currentView === view && styles.navButtonTextActive
+            ]}>{label}</Text>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
     </View>
   );
 
@@ -262,6 +254,13 @@ const App = () => {
           />
         )}
 
+        {currentView === 'calendar' && (
+          <CalendarView
+            tasks={tasks}
+            onTaskSelect={handleTaskSelect}
+          />
+        )}
+
         {currentView === 'detail' && selectedTask && (
           <TaskDetail
             task={selectedTask}
@@ -281,7 +280,7 @@ const App = () => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#F8F9FA',  // 밝은 배경색
+    backgroundColor: '#F8F9FA',
   },
   container: {
     flex: 1,
@@ -303,13 +302,10 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: '600',
     textAlign: 'center',
-    color: '#2C3E50',  // 진한 회색
-    // marginBottom: 5,
+    color: '#2C3E50',
   },
-  navigationContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    padding: 10,
+  navigationWrapper: {
+    height: 60,
     backgroundColor: 'white',
     shadowColor: '#000',
     shadowOffset: {
@@ -319,6 +315,12 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 3,
     elevation: 3,
+  },
+  navigationContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 10,
+    gap: 10,
   },
   navButton: {
     paddingVertical: 10,
@@ -334,7 +336,7 @@ const styles = StyleSheet.create({
     borderColor: '#3B82F6',
   },
   navButtonText: {
-    color: '#6B7280',  // 회색
+    color: '#6B7280',
     textAlign: 'center',
     fontSize: 14,
     fontWeight: '500',

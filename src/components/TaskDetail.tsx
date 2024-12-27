@@ -12,7 +12,26 @@ interface TaskDetailProps {
   onClose: () => void;
 }
 
-const COLORS = [
+const THEME = {
+  colors: {
+    primary: '#3B82F6',
+    danger: '#ff5047',
+    neutral: 'rgb(142,142,147)',
+    border: '#ccc',
+    lightGray: '#f0f0f0',
+    link: '#007AFF',
+    borderLight: '#eee',
+  },
+  spacing: {
+    xs: 5,
+    sm: 10,
+    md: 15,
+    lg: 20,
+    xl: 30,
+  },
+};
+
+const TASK_COLORS = [
   { label: 'Red', value: '#FF3A2D' },
   { label: 'Orange', value: '#FF9500' },
   { label: 'Yellow', value: '#FFCC00' },
@@ -20,7 +39,47 @@ const COLORS = [
   { label: 'Blue', value: '#5AC8FA' },
   { label: 'Indigo', value: '#5856D6' },
   { label: 'Purple', value: '#9966CC' },
-];
+] as const;
+
+interface SliderInputProps {
+  label: string;
+  value: number;
+  onChange: (value: number) => void;
+}
+
+const SliderInput: React.FC<SliderInputProps> = ({ label, value, onChange }) => {
+  const handleNumberInput = (text: string) => {
+    const num = parseInt(text);
+    if (!isNaN(num) && num >= 0 && num <= 10) {
+      onChange(num);
+    }
+  };
+
+  return (
+    <>
+      <Text style={styles.label}>{label}: {Math.round(value)}</Text>
+      <View style={styles.sliderContainer}>
+        <TextInput
+          style={styles.numberInput}
+          value={String(Math.round(value))}
+          onChangeText={handleNumberInput}
+          keyboardType="numeric"
+        />
+        <Slider
+          style={styles.slider}
+          minimumValue={0}
+          maximumValue={10}
+          value={value}
+          onValueChange={onChange}
+          step={1}
+          minimumTrackTintColor={THEME.colors.primary}
+          maximumTrackTintColor={THEME.colors.border}
+          thumbTintColor={THEME.colors.primary}
+        />
+      </View>
+    </>
+  );
+};
 
 export const TaskDetail: React.FC<TaskDetailProps> = ({
   task,
@@ -34,11 +93,11 @@ export const TaskDetail: React.FC<TaskDetailProps> = ({
   const [importance, setImportance] = useState(task.importance);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [notificationDate, setNotificationDate] = useState<Date | undefined>(task.notificationDate);
-  const [selectedColor, setSelectedColor] = useState(task.color || '#0000FF'); // 기본 파란색
+  const [selectedColor, setSelectedColor] = useState(task.color || TASK_COLORS[4].value);
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (task.notificationId) {
-      NotificationService.cancelNotification(task.notificationId);
+      await NotificationService.cancelNotification(task.notificationId);
     }
 
     const updatedTask: Task = {
@@ -52,7 +111,7 @@ export const TaskDetail: React.FC<TaskDetailProps> = ({
     };
 
     if (notificationDate) {
-      NotificationService.scheduleNotification({
+      await NotificationService.scheduleNotification({
         id: updatedTask.id,
         title: updatedTask.title,
         notificationDate,
@@ -60,13 +119,6 @@ export const TaskDetail: React.FC<TaskDetailProps> = ({
     }
 
     onUpdate(updatedTask);
-  };
-
-  const handleNumberInput = (text: string, setter: (value: number) => void) => {
-    const num = parseInt(text);
-    if (!isNaN(num) && num >= 0 && num <= 10) {
-      setter(num);
-    }
   };
 
   const handleDateChange = (event: any, selectedDate?: Date) => {
@@ -86,6 +138,7 @@ export const TaskDetail: React.FC<TaskDetailProps> = ({
           style={styles.input}
           value={title}
           onChangeText={setTitle}
+          placeholder="Enter task title"
         />
 
         <Text style={styles.label}>Description</Text>
@@ -94,49 +147,20 @@ export const TaskDetail: React.FC<TaskDetailProps> = ({
           value={description}
           onChangeText={setDescription}
           multiline
+          placeholder="Enter task description"
         />
 
-        <Text style={styles.label}>Urgency: {Math.round(urgency)}</Text>
-        <View style={styles.sliderContainer}>
-          <TextInput
-            style={styles.numberInput}
-            value={String(Math.round(urgency))}
-            onChangeText={(text) => handleNumberInput(text, setUrgency)}
-            keyboardType="numeric"
-          />
-          <Slider
-            style={styles.slider}
-            minimumValue={0}
-            maximumValue={10}
-            value={urgency}
-            onValueChange={setUrgency}
-            step={1}
-            minimumTrackTintColor="#3B82F6" 
-            maximumTrackTintColor="#D3D3D3"
-            thumbTintColor="#3B82F6"
-          />
-        </View>
+        <SliderInput
+          label="Urgency"
+          value={urgency}
+          onChange={setUrgency}
+        />
 
-        <Text style={styles.label}>Importance: {Math.round(importance)}</Text>
-        <View style={styles.sliderContainer}>
-          <TextInput
-            style={styles.numberInput}
-            value={String(Math.round(importance))}
-            onChangeText={(text) => handleNumberInput(text, setImportance)}
-            keyboardType="numeric"
-          />
-          <Slider
-            style={styles.slider}
-            minimumValue={0}
-            maximumValue={10}
-            value={importance}
-            onValueChange={setImportance}
-            step={1}
-            minimumTrackTintColor="#3B82F6" 
-            maximumTrackTintColor="#D3D3D3"
-            thumbTintColor="#3B82F6"
-          />
-        </View>
+        <SliderInput
+          label="Importance"
+          value={importance}
+          onChange={setImportance}
+        />
 
         <View style={styles.notificationSection}>
           <Text style={styles.sectionTitle}>Notification Settings</Text>
@@ -164,8 +188,13 @@ export const TaskDetail: React.FC<TaskDetailProps> = ({
 
         <View style={styles.colorSection}>
           <Text style={styles.label}>Task Color</Text>
-          <View style={styles.colorContainer}>
-            {COLORS.map((color) => (
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={styles.colorContainer}
+            contentContainerStyle={{ gap: THEME.spacing.sm }}
+          >
+            {TASK_COLORS.map((color) => (
               <TouchableOpacity
                 key={color.value}
                 style={[
@@ -180,9 +209,8 @@ export const TaskDetail: React.FC<TaskDetailProps> = ({
                 )}
               </TouchableOpacity>
             ))}
-          </View>
+          </ScrollView>
         </View>
-
 
         <View style={styles.buttonContainer}>
           <TouchableOpacity
@@ -212,29 +240,26 @@ export const TaskDetail: React.FC<TaskDetailProps> = ({
 };
 
 const styles = StyleSheet.create({
-  scrollContainer: {
-    flex: 1,
-  },
   container: {
-    padding: 20,
-    paddingBottom: 40, // 하단 여백 추가
+    padding: THEME.spacing.lg,
+    paddingBottom: THEME.spacing.xl,
   },
   header: {
     fontSize: 20,
     fontWeight: 'bold',
-    marginBottom: 20,
+    marginBottom: THEME.spacing.lg,
   },
   label: {
     fontSize: 16,
     fontWeight: 'bold',
-    marginBottom: 5,
+    marginBottom: THEME.spacing.xs,
   },
   input: {
     borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 5,
-    padding: 10,
-    marginBottom: 15,
+    borderColor: THEME.colors.border,
+    borderRadius: THEME.spacing.xs,
+    padding: THEME.spacing.sm,
+    marginBottom: THEME.spacing.md,
   },
   descriptionInput: {
     height: 100,
@@ -243,39 +268,39 @@ const styles = StyleSheet.create({
   sliderContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 15,
+    marginBottom: THEME.spacing.md,
   },
   slider: {
     flex: 1,
-    marginLeft: 10,
+    marginLeft: THEME.spacing.sm,
   },
   numberInput: {
     width: 50,
     borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 5,
-    padding: 5,
+    borderColor: THEME.colors.border,
+    borderRadius: THEME.spacing.xs,
+    padding: THEME.spacing.xs,
     textAlign: 'center',
   },
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 20,
-    marginBottom: 20,
+    marginTop: THEME.spacing.lg,
+    marginBottom: THEME.spacing.lg,
   },
   button: {
-    padding: 15,
-    borderRadius: 5,
+    padding: THEME.spacing.md,
+    borderRadius: THEME.spacing.xs,
     minWidth: 100,
   },
   saveButton: {
-    backgroundColor: '#3B82F6',
+    backgroundColor: THEME.colors.primary,
   },
   deleteButton: {
-    backgroundColor: '#ff5047',
+    backgroundColor: THEME.colors.danger,
   },
   cancelButton: {
-    backgroundColor: 'rgb(142,142,147)',
+    backgroundColor: THEME.colors.neutral,
   },
   buttonText: {
     color: 'white',
@@ -284,41 +309,39 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   notificationSection: {
-    marginTop: 30,
-    marginBottom: 20,
-    paddingTop: 20,
-    paddingBottom: 20,
+    marginTop: THEME.spacing.xl,
+    marginBottom: THEME.spacing.lg,
+    paddingTop: THEME.spacing.lg,
+    paddingBottom: THEME.spacing.lg,
     borderTopWidth: 1,
     borderBottomWidth: 1,
-    borderColor: '#eee',
+    borderColor: THEME.colors.borderLight,
     alignItems: 'center',
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    marginBottom: 15,
+    marginBottom: THEME.spacing.md,
     color: 'black',
   },
   dateButton: {
-    backgroundColor: '#f0f0f0',
-    padding: 15,
-    borderRadius: 5,
-    marginBottom: 15,
-    minWidth: 200,  // 버튼 최소 너비 설정
+    backgroundColor: THEME.colors.lightGray,
+    padding: THEME.spacing.md,
+    borderRadius: THEME.spacing.xs,
+    marginBottom: THEME.spacing.md,
+    minWidth: 200,
   },
   dateButtonText: {
     textAlign: 'center',
-    color: '#007AFF',
+    color: THEME.colors.link,
     fontSize: 16,
   },
   colorSection: {
-    marginBottom: 20,
+    marginBottom: THEME.spacing.lg,
   },
   colorContainer: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 10,
-    marginTop: 10,
+    marginTop: THEME.spacing.sm,
   },
   colorButton: {
     width: 40,

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, Dimensions, TouchableOpacity, Text, ScrollView, Modal, TextInput, Alert } from 'react-native';
+import { View, StyleSheet, Dimensions, TouchableOpacity, Text, ScrollView, Modal, TextInput, Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import Svg, { Circle, Line, Text as SvgText, Rect } from 'react-native-svg';
 import { MoreVertical } from 'lucide-react-native';
 import { Task } from '../types';
@@ -17,12 +17,28 @@ interface TaskGroup {
   tasks: Task[];
 }
 
+// Constants for visualization
+const MATRIX_CONSTANTS = {
+  GRID_LINES: 21,
+  AXIS_TICKS: [0, 2.5, 5, 7.5, 10],
+  PADDING: 40,
+  DEFAULT_COLOR: "#3B82F6",
+  SORT_PREFERENCE_KEY: '@eisenhower_sort_preference',
+};
+
+const COLORS = {
+  TEXT: '#2C3E50',
+  SUBTITLE: '#6B7280',
+  BORDER: '#E5E7EB',
+  BACKGROUND: '#F8F9FA',
+  DELETE: '#FF3B30',
+};
+
 export const MatrixVisualization: React.FC<MatrixVisualizationProps> = ({
   tasks,
   onTaskSelect,
   onDeleteAll
 }) => {
-  const SORT_PREFERENCE_KEY = '@eisenhower_sort_preference';
   const [modalVisible, setModalVisible] = useState(false);
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [deleteConfirmText, setDeleteConfirmText] = useState('');
@@ -32,16 +48,14 @@ export const MatrixVisualization: React.FC<MatrixVisualizationProps> = ({
 
   const width = Dimensions.get('window').width - 40;
   const height = width;
-  const padding = 40;
+  const padding = MATRIX_CONSTANTS.PADDING;
   const quadrantWidth = (width - 2 * padding) / 2;
   const quadrantHeight = (height - 2 * padding) / 2;
 
-  // NaN 체크 함수
   const getValidNumber = (value: number): number => {
     return isNaN(value) ? 0 : value;
   };
 
-  // Task 그룹화 함수
   const groupTasks = (): TaskGroup[] => {
     const groups: { [key: string]: TaskGroup } = {};
 
@@ -64,7 +78,7 @@ export const MatrixVisualization: React.FC<MatrixVisualizationProps> = ({
   useEffect(() => {
     const loadSortPreference = async () => {
       try {
-        const savedSortBy = await AsyncStorage.getItem(SORT_PREFERENCE_KEY);
+        const savedSortBy = await AsyncStorage.getItem(MATRIX_CONSTANTS.SORT_PREFERENCE_KEY);
         if (savedSortBy) {
           setSortBy(savedSortBy as 'urgency' | 'importance');
         }
@@ -75,7 +89,6 @@ export const MatrixVisualization: React.FC<MatrixVisualizationProps> = ({
 
     loadSortPreference();
   }, []);
-
 
   const handleDeleteAll = () => {
     if (tasks.length === 0) {
@@ -100,6 +113,223 @@ export const MatrixVisualization: React.FC<MatrixVisualizationProps> = ({
     setModalVisible(true);
   };
 
+  const renderAxisLines = () => (
+    <>
+      <Line
+        x1={padding}
+        y1={height - padding}
+        x2={width - padding}
+        y2={height - padding}
+        stroke={COLORS.TEXT}
+        strokeWidth="1.5"
+      />
+      <Line
+        x1={padding}
+        y1={padding}
+        x2={padding}
+        y2={height - padding}
+        stroke={COLORS.TEXT}
+        strokeWidth="1.5"
+      />
+    </>
+  );
+
+  const renderGridLines = () => (
+    <>
+      {[...Array(MATRIX_CONSTANTS.GRID_LINES)].map((_, index) => (
+        <React.Fragment key={`grid-${index}`}>
+          <Line
+            x1={padding + (index / 20) * (width - 2 * padding)}
+            y1={padding}
+            x2={padding + (index / 20) * (width - 2 * padding)}
+            y2={height - padding}
+            stroke="#000000"
+            strokeWidth="0.3"
+            strokeDasharray="2,2"
+            strokeOpacity={index % 2 === 0 ? "0.6" : "0.3"}
+          />
+          <Line
+            x1={padding}
+            y1={height - (padding + (index / 20) * (height - 2 * padding))}
+            x2={width - padding}
+            y2={height - (padding + (index / 20) * (height - 2 * padding))}
+            stroke="#000000"
+            strokeWidth="0.3"
+            strokeDasharray="2,2"
+            strokeOpacity={index % 2 === 0 ? "0.6" : "0.3"}
+          />
+        </React.Fragment>
+      ))}
+    </>
+  );
+
+  const renderAxisLabels = () => (
+    <>
+      <SvgText
+        x={width - padding + 10}
+        y={height - padding + 25}
+        textAnchor="end"
+        fontSize="12"
+        fill={COLORS.SUBTITLE}
+      >
+        Urgency
+      </SvgText>
+      <SvgText
+        x={padding - 25}
+        y={padding - 10}
+        textAnchor="start"
+        fontSize="12"
+        fill={COLORS.SUBTITLE}
+      >
+        Importance
+      </SvgText>
+    </>
+  );
+
+  const renderAxisTicks = () => (
+    <>
+      {MATRIX_CONSTANTS.AXIS_TICKS.map((value) => (
+        <React.Fragment key={value}>
+          <Line
+            x1={padding + (value / 10) * (width - 2 * padding)}
+            y1={height - padding}
+            x2={padding + (value / 10) * (width - 2 * padding)}
+            y2={height - padding + 5}
+            stroke={COLORS.SUBTITLE}
+            strokeWidth="1"
+          />
+          <SvgText
+            x={padding + (value / 10) * (width - 2 * padding)}
+            y={height - padding + 15}
+            textAnchor="middle"
+            fontSize="10"
+            fill={COLORS.SUBTITLE}
+          >
+            {Math.round(value)}
+          </SvgText>
+          <Line
+            x1={padding - 5}
+            y1={height - (padding + (value / 10) * (height - 2 * padding))}
+            x2={padding}
+            y2={height - (padding + (value / 10) * (height - 2 * padding))}
+            stroke={COLORS.SUBTITLE}
+            strokeWidth="1"
+          />
+          <SvgText
+            x={padding - 10}
+            y={height - (padding + (value / 10) * (height - 2 * padding))}
+            textAnchor="end"
+            fontSize="10"
+            fill={COLORS.SUBTITLE}
+            alignmentBaseline="middle"
+          >
+            {Math.round(value)}
+          </SvgText>
+        </React.Fragment>
+      ))}
+    </>
+  );
+
+  const renderTaskGroups = () => (
+    <>
+      {groupTasks().map((group, index) => {
+        const groupColor = group.tasks[0]?.color || MATRIX_CONSTANTS.DEFAULT_COLOR;
+        return (
+          <React.Fragment key={index}>
+            <Circle
+              cx={group.x}
+              cy={group.y}
+              r={7}
+              fill={groupColor}
+            />
+            <Circle
+              cx={group.x}
+              cy={group.y}
+              r={5}
+              fill={groupColor}
+              stroke="white"
+              strokeWidth="1"
+            />
+            <Circle
+              cx={group.x}
+              cy={group.y}
+              r={12}
+              fill="rgba(0,0,0,0)"
+              onPress={() => handleTaskGroupPress(group)}
+            />
+          </React.Fragment>
+        );
+      })}
+    </>
+  );
+
+  const renderGraph = () => (
+    <Svg width={width} height={height}>
+      {[0, 1, 2, 3].map((index) => (
+        <Rect
+          key={index}
+          x={padding + (index % 2) * quadrantWidth}
+          y={padding + Math.floor(index / 2) * quadrantHeight}
+          width={quadrantWidth}
+          height={quadrantHeight}
+          fill="#fafafa"
+          opacity="0.8"
+        />
+      ))}
+
+      <Line
+        x1={padding + quadrantWidth}
+        y1={padding}
+        x2={padding + quadrantWidth}
+        y2={height - padding}
+        stroke="#242424"
+        strokeWidth="0.3"
+        strokeDasharray="1,0"
+      />
+      <Line
+        x1={padding}
+        y1={padding + quadrantHeight}
+        x2={width - padding}
+        y2={padding + quadrantHeight}
+        stroke="#242424"
+        strokeWidth="0.3"
+        strokeDasharray="1,0"
+      />
+
+      {renderGridLines()}
+      {renderAxisLines()}
+      {renderAxisLabels()}
+      {renderAxisTicks()}
+      {renderTaskGroups()}
+    </Svg>
+  );
+
+  const getSortedTasks = (tasks: Task[]) => {
+    return [...tasks].sort((a, b) => {
+      if (sortBy === 'urgency') {
+        if (b.urgency === a.urgency) {
+          return b.importance - a.importance;
+        }
+        return b.urgency - a.urgency;
+      } else {
+        if (b.importance === a.importance) {
+          return b.urgency - a.urgency;
+        }
+        return b.importance - a.importance;
+      }
+    });
+  };
+
+  const handleSortChange = async (newSortBy: 'urgency' | 'importance') => {
+    setSortBy(newSortBy);
+    setSortMenuVisible(false);
+    try {
+      await AsyncStorage.setItem(MATRIX_CONSTANTS.SORT_PREFERENCE_KEY, newSortBy);
+    } catch (error) {
+      console.error('Failed to save sort preference:', error);
+    }
+  };
+
   const renderTaskModal = () => (
     <Modal
       transparent={true}
@@ -121,7 +351,7 @@ export const MatrixVisualization: React.FC<MatrixVisualizationProps> = ({
                   styles.modalItem,
                   {
                     borderLeftWidth: 4,
-                    borderLeftColor: task.color || "#3B82F6"
+                    borderLeftColor: task.color || MATRIX_CONSTANTS.DEFAULT_COLOR
                   }
                 ]}
                 onPress={() => {
@@ -146,16 +376,20 @@ export const MatrixVisualization: React.FC<MatrixVisualizationProps> = ({
     </Modal>
   );
 
-  const renderDeleteConfirmModal = () => (
-    <Modal
-      transparent={true}
-      visible={deleteModalVisible}
-      onRequestClose={() => setDeleteModalVisible(false)}
+const renderDeleteConfirmModal = () => (
+  <Modal
+    transparent={true}
+    visible={deleteModalVisible}
+    onRequestClose={() => setDeleteModalVisible(false)}
+  >
+    <TouchableOpacity
+      style={styles.modalOverlay}
+      activeOpacity={1}
+      onPress={() => setDeleteModalVisible(false)}
     >
-      <TouchableOpacity
-        style={styles.modalOverlay}
-        activeOpacity={1}
-        onPress={() => setDeleteModalVisible(false)}
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={{ width: '100%', justifyContent: 'center', alignItems: 'center' }}
       >
         <View style={styles.modalContent}>
           <Text style={styles.modalTitle}>Confirm Deletion</Text>
@@ -188,238 +422,10 @@ export const MatrixVisualization: React.FC<MatrixVisualizationProps> = ({
             </TouchableOpacity>
           </View>
         </View>
-      </TouchableOpacity>
-    </Modal>
-  );
-
-  const quadrants = [
-    { x: padding, y: padding }, // 1st quadrant
-    { x: padding + quadrantWidth, y: padding }, // 2nd quadrant
-    { x: padding, y: padding + quadrantHeight }, // 3rd quadrant
-    { x: padding + quadrantWidth, y: padding + quadrantHeight }, // 4th quadrant
-  ];
-
-  const renderGraph = () => (
-    <Svg width={width} height={height}>
-      {/* 1. 사분면 배경 */}
-      <Svg width={width} height={height}>
-        {quadrants.map((quadrant, index) => (
-          <Rect
-            key={index}
-            x={quadrant.x}
-            y={quadrant.y}
-            width={quadrantWidth}
-            height={quadrantHeight}
-            fill="#fafafa"
-            opacity="0.8"
-          />
-        ))}
-      </Svg>
-
-      {/* 2. 중간 분할선 */}
-      <Line
-        x1={padding + quadrantWidth}
-        y1={padding}
-        x2={padding + quadrantWidth}
-        y2={height - padding}
-        stroke="#242424"
-        strokeWidth="0.3"
-        strokeDasharray="1,0"
-      />
-      <Line
-        x1={padding}
-        y1={padding + quadrantHeight}
-        x2={width - padding}
-        y2={padding + quadrantHeight}
-        stroke="#242424"
-        strokeWidth="0.3"
-        strokeDasharray="1,0"
-      />
-
-      {/* 3. X, Y 축 (실선) */}
-      <Line
-        x1={padding}
-        y1={height - padding}
-        x2={width - padding}
-        y2={height - padding}
-        stroke="#2C3E50"
-        strokeWidth="1.5"
-      />
-      <Line
-        x1={padding}
-        y1={padding}
-        x2={padding}
-        y2={height - padding}
-        stroke="#2C3E50"
-        strokeWidth="1.5"
-      />
-
-      {/* 4. 격자선 */}
-      {[...Array(21)].map((_, index) => (
-        <React.Fragment key={`grid-${index}`}>
-          {/* 수직 격자선 */}
-          <Line
-            x1={padding + (index / 20) * (width - 2 * padding)}
-            y1={padding}
-            x2={padding + (index / 20) * (width - 2 * padding)}
-            y2={height - padding}
-            stroke="#000000"
-            strokeWidth="0.3"
-            strokeDasharray="2,2"
-            strokeOpacity={index % 2 === 0 ? "0.6" : "0.3"}
-          />
-          {/* 수평 격자선 */}
-          <Line
-            x1={padding}
-            y1={height - (padding + (index / 20) * (height - 2 * padding))}
-            x2={width - padding}
-            y2={height - (padding + (index / 20) * (height - 2 * padding))}
-            stroke="#000000"
-            strokeWidth="0.3"
-            strokeDasharray="2,2"
-            strokeOpacity={index % 2 === 0 ? "0.6" : "0.3"}
-          />
-        </React.Fragment>
-      ))}
-
-      {/* 5. X, Y 축 한번 더 그리기 (격자 위에) */}
-      <Line
-        x1={padding}
-        y1={height - padding}
-        x2={width - padding}
-        y2={height - padding}
-        stroke="#2C3E50"
-        strokeWidth="1.5"
-      />
-      <Line
-        x1={padding}
-        y1={padding}
-        x2={padding}
-        y2={height - padding}
-        stroke="#2C3E50"
-        strokeWidth="1.5"
-      />
-
-      {/* 6. 축 레이블 */}
-      <SvgText
-        x={width - padding + 10}
-        y={height - padding + 25}
-        textAnchor="end"
-        fontSize="12"
-        fill="#6B7280"
-      >
-        Urgency
-      </SvgText>
-      <SvgText
-        x={padding - 25}
-        y={padding - 10}
-        textAnchor="start"
-        fontSize="12"
-        fill="#6B7280"
-      >
-        Importance
-      </SvgText>
-
-      {/* 7. 축 눈금 */}
-      {[0, 2.5, 5, 7.5, 10].map((value) => (
-        <React.Fragment key={value}>
-          <Line
-            x1={padding + (value / 10) * (width - 2 * padding)}
-            y1={height - padding}
-            x2={padding + (value / 10) * (width - 2 * padding)}
-            y2={height - padding + 5}
-            stroke="#6B7280"
-            strokeWidth="1"
-          />
-          <SvgText
-            x={padding + (value / 10) * (width - 2 * padding)}
-            y={height - padding + 15}
-            textAnchor="middle"
-            fontSize="10"
-            fill="#6B7280"
-          >
-            {Math.round(value)}
-          </SvgText>
-          <Line
-            x1={padding - 5}
-            y1={height - (padding + (value / 10) * (height - 2 * padding))}
-            x2={padding}
-            y2={height - (padding + (value / 10) * (height - 2 * padding))}
-            stroke="#6B7280"
-            strokeWidth="1"
-          />
-          <SvgText
-            x={padding - 10}
-            y={height - (padding + (value / 10) * (height - 2 * padding))}
-            textAnchor="end"
-            fontSize="10"
-            fill="#6B7280"
-            alignmentBaseline="middle"
-          >
-            {Math.round(value)}
-          </SvgText>
-        </React.Fragment>
-      ))}
-
-
-      {/* 8. Task 그룹 렌더링 */}
-      {groupTasks().map((group, index) => {
-        const groupColor = group.tasks[0]?.color || "#5AC8FA";
-        return (
-          <React.Fragment key={index}>
-            <Circle
-              cx={group.x}
-              cy={group.y}
-              r={7}
-              fill={groupColor}
-            />
-            <Circle
-              cx={group.x}
-              cy={group.y}
-              r={5}
-              fill={groupColor}
-              stroke="white"
-              strokeWidth="1"
-            />
-            <Circle
-              cx={group.x}
-              cy={group.y}
-              r={12}
-              fill="rgba(0,0,0,0)"
-              onPress={() => handleTaskGroupPress(group)}
-            />
-          </React.Fragment>
-        );
-      })}
-    </Svg>
-  );
-
-  const getSortedTasks = (tasks: Task[]) => {
-    return [...tasks].sort((a, b) => {
-      if (sortBy === 'urgency') {
-        if (b.urgency === a.urgency) {
-          return b.importance - a.importance;
-        }
-        return b.urgency - a.urgency;
-      } else {
-        if (b.importance === a.importance) {
-          return b.urgency - a.urgency;
-        }
-        return b.importance - a.importance;
-      }
-    });
-  };
-
-  const handleSortChange = async (newSortBy: 'urgency' | 'importance') => {
-    setSortBy(newSortBy);
-    setSortMenuVisible(false);
-    try {
-      await AsyncStorage.setItem(SORT_PREFERENCE_KEY, newSortBy);
-    } catch (error) {
-      console.error('Failed to save sort preference:', error);
-    }
-  };
-
+      </KeyboardAvoidingView>
+    </TouchableOpacity>
+  </Modal>
+);
 
   return (
     <ScrollView style={styles.container}>
@@ -434,7 +440,7 @@ export const MatrixVisualization: React.FC<MatrixVisualizationProps> = ({
             style={styles.sortButton}
             onPress={() => setSortMenuVisible(!sortMenuVisible)}
           >
-            <MoreVertical size={18} color="#6B7280" />
+            <MoreVertical size={18} color={COLORS.SUBTITLE} />
           </TouchableOpacity>
           {sortMenuVisible && (
             <View style={styles.sortMenu}>
@@ -476,7 +482,7 @@ export const MatrixVisualization: React.FC<MatrixVisualizationProps> = ({
               styles.taskItem,
               {
                 borderLeftWidth: 4,
-                borderLeftColor: task.color || "#3B82F6"
+                borderLeftColor: task.color || MATRIX_CONSTANTS.DEFAULT_COLOR
               }
             ]}
             onPress={() => onTaskSelect(task)}
@@ -532,33 +538,26 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     paddingBottom: 10,
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
+    borderBottomColor: COLORS.BORDER,
     position: 'relative',
   },
   listTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#2C3E50',
-  },
-  deleteAllButton: {
-    backgroundColor: '#FF3B30',
-    padding: 8,
-    borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
+    color: COLORS.TEXT,
   },
   taskItem: {
-    backgroundColor: '#F8F9FA',
+    backgroundColor: COLORS.BACKGROUND,
     padding: 15,
     borderRadius: 8,
     marginBottom: 10,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: COLORS.BORDER,
   },
   taskTitle: {
     fontSize: 16,
     fontWeight: '500',
-    color: '#2C3E50',
+    color: COLORS.TEXT,
     marginBottom: 8,
   },
   taskMetrics: {
@@ -567,7 +566,7 @@ const styles = StyleSheet.create({
   },
   metricText: {
     fontSize: 14,
-    color: '#6B7280',
+    color: COLORS.SUBTITLE,
   },
   modalOverlay: {
     flex: 1,
@@ -580,7 +579,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 20,
     width: '90%',
-    maxHeight: '60%',
+    marginBottom: 10,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
@@ -590,25 +589,25 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 20,
     fontWeight: '600',
-    color: '#2C3E50',
+    color: COLORS.TEXT,
     marginBottom: 15,
     textAlign: 'center',
   },
   modalText: {
     fontSize: 16,
-    color: '#6B7280',
+    color: COLORS.SUBTITLE,
     marginBottom: 10,
     textAlign: 'center',
     lineHeight: 24,
   },
   confirmInput: {
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: COLORS.BORDER,
     borderRadius: 8,
     padding: 12,
     marginVertical: 15,
     fontSize: 16,
-    color: '#2C3E50',
+    color: COLORS.TEXT,
   },
   modalButtons: {
     flexDirection: 'row',
@@ -627,14 +626,14 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   cancelButton: {
-    backgroundColor: '#6B7280',
+    backgroundColor: COLORS.SUBTITLE,
   },
   deleteButton: {
-    backgroundColor: '#FF3B30',
+    backgroundColor: COLORS.DELETE,
   },
   helperText: {
     fontSize: 12,
-    color: '#6B7280',
+    color: COLORS.SUBTITLE,
     textAlign: 'center',
     marginTop: 12,
     fontStyle: 'italic',
@@ -643,16 +642,16 @@ const styles = StyleSheet.create({
     maxHeight: '90%',
   },
   modalItem: {
-    backgroundColor: '#F8F9FA',
+    backgroundColor: COLORS.BACKGROUND,
     padding: 15,
     borderRadius: 8,
     marginBottom: 10,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: COLORS.BORDER,
   },
   modalItemText: {
     fontSize: 16,
-    color: '#2C3E50',
+    color: COLORS.TEXT,
     marginBottom: 8,
   },
   modalItemMetrics: {
@@ -661,7 +660,7 @@ const styles = StyleSheet.create({
   },
   modalMetricText: {
     fontSize: 14,
-    color: '#6B7280',
+    color: COLORS.SUBTITLE,
   },
   headerButtons: {
     flexDirection: 'row',
@@ -682,7 +681,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#F3F4F6',
   },
   sortMenuText: {
-    color: '#2C3E50',
+    color: COLORS.TEXT,
     fontSize: 14,
   },
   sortMenu: {
@@ -692,23 +691,23 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     borderRadius: 8,
     paddingVertical: 5,
-    minWidth: 180, // 추가
+    minWidth: 180,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 5,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: COLORS.BORDER,
     zIndex: 1,
   },
   sortMenuDivider: {
     height: 1,
-    backgroundColor: '#E5E7EB',
+    backgroundColor: COLORS.BORDER,
     marginVertical: 5,
   },
   deleteMenuText: {
-    color: '#FF3B30',
+    color: COLORS.DELETE,
     fontSize: 14,
   },
 });

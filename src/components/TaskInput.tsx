@@ -9,7 +9,27 @@ interface TaskInputProps {
   onTaskCreate: (task: Task) => void;
 }
 
-const COLORS = [
+const THEME = {
+  colors: {
+    primary: '#3B82F6',
+    border: '#ccc',
+    borderLight: '#eee',
+    background: '#f0f0f0',
+    link: '#007AFF',
+  },
+  spacing: {
+    xs: 5,
+    sm: 10,
+    md: 15,
+    lg: 20,
+    xl: 30,
+  },
+};
+
+type TaskColor = typeof TASK_COLORS[number]['value'];
+
+// TASK_COLORS 배열 정의
+const TASK_COLORS = [
   { label: 'Red', value: '#FF3A2D' },
   { label: 'Orange', value: '#FF9500' },
   { label: 'Yellow', value: '#FFCC00' },
@@ -17,29 +37,81 @@ const COLORS = [
   { label: 'Blue', value: '#5AC8FA' },
   { label: 'Indigo', value: '#5856D6' },
   { label: 'Purple', value: '#9966CC' },
-];
+] as const;
+
+
+interface SliderInputProps {
+  label: string;
+  value: number;
+  inputValue: string;
+  onInputChange: (text: string) => void;
+  onInputBlur: () => void;
+  onSliderChange: (value: number) => void;
+}
+
+const SliderInput: React.FC<SliderInputProps> = ({
+  label,
+  value,
+  inputValue,
+  onInputChange,
+  onInputBlur,
+  onSliderChange,
+}) => (
+  <>
+    <Text style={styles.label}>{label}: {Math.round(value)}</Text>
+    <View style={styles.sliderContainer}>
+      <TextInput
+        style={styles.numberInput}
+        value={inputValue}
+        onChangeText={onInputChange}
+        onBlur={onInputBlur}
+        keyboardType="number-pad"
+      />
+      <Slider
+        style={styles.slider}
+        minimumValue={0}
+        maximumValue={10}
+        value={value}
+        onValueChange={onSliderChange}
+        step={1}
+        minimumTrackTintColor={THEME.colors.primary}
+        maximumTrackTintColor={THEME.colors.border}
+        thumbTintColor={THEME.colors.primary}
+      />
+    </View>
+  </>
+);
+
+interface ToastProps {
+  opacity: Animated.Value;
+}
+
+const Toast: React.FC<ToastProps> = ({ opacity }) => (
+  <Animated.View style={[styles.toast, { opacity }]}>
+    <Text style={styles.toastText}>Created successfully</Text>
+  </Animated.View>
+);
 
 export const TaskInput: React.FC<TaskInputProps> = ({ onTaskCreate }) => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [urgency, setUrgency] = useState(5);
   const [importance, setImportance] = useState(5);
+  const [urgencyInput, setUrgencyInput] = useState('5');
+  const [importanceInput, setImportanceInput] = useState('5');
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [notificationDate, setNotificationDate] = useState<Date | undefined>();
-  const [selectedColor, setSelectedColor] = useState(COLORS[4].value); // Default: Blue
+const [selectedColor, setSelectedColor] = useState<TaskColor>(TASK_COLORS[4].value);
   const [toastOpacity] = useState(new Animated.Value(0));
 
   const showToast = () => {
     Animated.sequence([
-      // 페이드 인
       Animated.timing(toastOpacity, {
         toValue: 1,
         duration: 200,
         useNativeDriver: true,
       }),
-      // 1초 대기
       Animated.delay(1000),
-      // 페이드 아웃
       Animated.timing(toastOpacity, {
         toValue: 0,
         duration: 200,
@@ -48,7 +120,7 @@ export const TaskInput: React.FC<TaskInputProps> = ({ onTaskCreate }) => {
     ]).start();
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const taskTitle = title.trim() || 'Untitled';
 
     const newTask: Task = {
@@ -59,11 +131,11 @@ export const TaskInput: React.FC<TaskInputProps> = ({ onTaskCreate }) => {
       importance: Math.round(importance),
       date: new Date(),
       notificationDate,
-      color: selectedColor as string,
+      color: selectedColor,
     };
 
     if (notificationDate) {
-      NotificationService.scheduleNotification({
+      await NotificationService.scheduleNotification({
         id: newTask.id,
         title: newTask.title,
         notificationDate,
@@ -71,18 +143,54 @@ export const TaskInput: React.FC<TaskInputProps> = ({ onTaskCreate }) => {
     }
 
     onTaskCreate(newTask);
+    resetForm();
+    showToast();
+  };
+
+  const resetForm = () => {
     setTitle('');
     setDescription('');
     setUrgency(5);
     setImportance(5);
+    setUrgencyInput('5');
+    setImportanceInput('5');
     setNotificationDate(undefined);
-    showToast();
   };
 
-  const handleNumberInput = (text: string, setter: (value: number) => void) => {
-    const num = parseInt(text);
-    if (!isNaN(num) && num >= 0 && num <= 10) {
-      setter(num);
+  const handleNumberInput = (text: string, type: 'urgency' | 'importance') => {
+    if (text === '' || /^\d+$/.test(text)) {
+      const setter = type === 'urgency' ? setUrgencyInput : setImportanceInput;
+      const valueSetter = type === 'urgency' ? setUrgency : setImportance;
+      
+      setter(text);
+      if (text !== '') {
+        const num = parseInt(text);
+        if (num >= 0 && num <= 10) {
+          valueSetter(num);
+        }
+      }
+    }
+  };
+
+  const handleInputBlur = (type: 'urgency' | 'importance') => {
+    const input = type === 'urgency' ? urgencyInput : importanceInput;
+    const setter = type === 'urgency' ? setUrgencyInput : setImportanceInput;
+    const valueSetter = type === 'urgency' ? setUrgency : setImportance;
+
+    let num = parseInt(input || '0');
+    num = Math.max(0, Math.min(10, num));
+    setter(num.toString());
+    valueSetter(num);
+  };
+
+  const handleSliderChange = (value: number, type: 'urgency' | 'importance') => {
+    const roundedValue = Math.round(value).toString();
+    if (type === 'urgency') {
+      setUrgency(value);
+      setUrgencyInput(roundedValue);
+    } else {
+      setImportance(value);
+      setImportanceInput(roundedValue);
     }
   };
 
@@ -113,47 +221,23 @@ export const TaskInput: React.FC<TaskInputProps> = ({ onTaskCreate }) => {
           placeholder="Recommended are the task details and the due date"
         />
 
-        <Text style={styles.label}>Urgency: {Math.round(urgency)}</Text>
-        <View style={styles.sliderContainer}>
-          <TextInput
-            style={styles.numberInput}
-            value={String(Math.round(urgency))}
-            onChangeText={(text) => handleNumberInput(text, setUrgency)}
-            keyboardType="numeric"
-          />
-          <Slider
-            style={styles.slider}
-            minimumValue={0}
-            maximumValue={10}
-            value={urgency}
-            onValueChange={setUrgency}
-            step={1}
-            minimumTrackTintColor="#3B82F6" 
-            maximumTrackTintColor="#D3D3D3"
-            thumbTintColor="#3B82F6"
-          />
-        </View>
+        <SliderInput
+          label="Urgency"
+          value={urgency}
+          inputValue={urgencyInput}
+          onInputChange={(text) => handleNumberInput(text, 'urgency')}
+          onInputBlur={() => handleInputBlur('urgency')}
+          onSliderChange={(value) => handleSliderChange(value, 'urgency')}
+        />
 
-        <Text style={styles.label}>Importance: {Math.round(importance)}</Text>
-        <View style={styles.sliderContainer}>
-          <TextInput
-            style={styles.numberInput}
-            value={String(Math.round(importance))}
-            onChangeText={(text) => handleNumberInput(text, setImportance)}
-            keyboardType="numeric"
-          />
-          <Slider
-            style={styles.slider}
-            minimumValue={0}
-            maximumValue={10}
-            value={importance}
-            onValueChange={setImportance}
-            step={1}
-            minimumTrackTintColor="#3B82F6" 
-            maximumTrackTintColor="#D3D3D3"
-            thumbTintColor="#3B82F6"
-          />
-        </View>
+        <SliderInput
+          label="Importance"
+          value={importance}
+          inputValue={importanceInput}
+          onInputChange={(text) => handleNumberInput(text, 'importance')}
+          onInputBlur={() => handleInputBlur('importance')}
+          onSliderChange={(value) => handleSliderChange(value, 'importance')}
+        />
 
         <View style={styles.notificationSection}>
           <Text style={styles.sectionTitle}>Notification Settings</Text>
@@ -181,8 +265,13 @@ export const TaskInput: React.FC<TaskInputProps> = ({ onTaskCreate }) => {
 
         <View style={styles.colorSection}>
           <Text style={styles.label}>Task Color</Text>
-          <View style={styles.colorContainer}>
-            {COLORS.map((color) => (
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={styles.colorContainer}
+            contentContainerStyle={{ gap: THEME.spacing.sm }}
+          >
+            {TASK_COLORS.map((color) => (
               <TouchableOpacity
                 key={color.value}
                 style={[
@@ -197,7 +286,7 @@ export const TaskInput: React.FC<TaskInputProps> = ({ onTaskCreate }) => {
                 )}
               </TouchableOpacity>
             ))}
-          </View>
+          </ScrollView>
         </View>
 
         <TouchableOpacity
@@ -207,19 +296,9 @@ export const TaskInput: React.FC<TaskInputProps> = ({ onTaskCreate }) => {
           <Text style={styles.buttonText}>Add Task</Text>
         </TouchableOpacity>
 
-        <Animated.View
-          style={[
-            styles.toast,
-            {
-              opacity: toastOpacity
-            }
-          ]}
-        >
-          <Text style={styles.toastText}>Created successfully</Text>
-        </Animated.View>
+        <Toast opacity={toastOpacity} />
       </View>
     </ScrollView>
-
   );
 };
 
@@ -228,20 +307,20 @@ const styles = StyleSheet.create({
     flexGrow: 1,
   },
   container: {
-    padding: 20,
-    paddingBottom: 40,
+    padding: THEME.spacing.lg,
+    paddingBottom: THEME.spacing.xl,
   },
   label: {
     fontSize: 16,
     fontWeight: 'bold',
-    marginBottom: 5,
+    marginBottom: THEME.spacing.xs,
   },
   input: {
     borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 5,
-    padding: 10,
-    marginBottom: 15,
+    borderColor: THEME.colors.border,
+    borderRadius: THEME.spacing.xs,
+    padding: THEME.spacing.sm,
+    marginBottom: THEME.spacing.md,
   },
   descriptionInput: {
     height: 100,
@@ -250,24 +329,24 @@ const styles = StyleSheet.create({
   sliderContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 15,
+    marginBottom: THEME.spacing.md,
   },
   slider: {
     flex: 1,
-    marginLeft: 10,
+    marginLeft: THEME.spacing.sm,
   },
   numberInput: {
     width: 50,
     borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 5,
-    padding: 5,
+    borderColor: THEME.colors.border,
+    borderRadius: THEME.spacing.xs,
+    padding: THEME.spacing.xs,
     textAlign: 'center',
   },
   button: {
-    backgroundColor: '#3B82F6',
-    padding: 15,
-    borderRadius: 5,
+    backgroundColor: THEME.colors.primary,
+    padding: THEME.spacing.md,
+    borderRadius: THEME.spacing.xs,
     alignItems: 'center',
   },
   buttonText: {
@@ -276,31 +355,31 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   notificationSection: {
-    marginTop: 30,
-    marginBottom: 20,
-    paddingTop: 20,
-    paddingBottom: 20,
+    marginTop: THEME.spacing.xl,
+    marginBottom: THEME.spacing.lg,
+    paddingTop: THEME.spacing.lg,
+    paddingBottom: THEME.spacing.lg,
     borderTopWidth: 1,
     borderBottomWidth: 1,
-    borderColor: '#eee',
+    borderColor: THEME.colors.borderLight,
     alignItems: 'center',
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    marginBottom: 15,
+    marginBottom: THEME.spacing.md,
     color: 'black',
   },
   dateButton: {
-    backgroundColor: '#f0f0f0',
-    padding: 15,
-    borderRadius: 5,
-    marginBottom: 15,
+    backgroundColor: THEME.colors.background,
+    padding: THEME.spacing.md,
+    borderRadius: THEME.spacing.xs,
+    marginBottom: THEME.spacing.md,
     minWidth: 200,
   },
   dateButtonText: {
     textAlign: 'center',
-    color: '#007AFF',
+    color: THEME.colors.link,
     fontSize: 16,
   },
   toast: {
@@ -308,8 +387,8 @@ const styles = StyleSheet.create({
     top: '40%',
     alignSelf: 'center',
     backgroundColor: 'rgba(0, 0, 0, 0.7)',
-    paddingVertical: 8,
-    paddingHorizontal: 16,
+    paddingVertical: THEME.spacing.sm,
+    paddingHorizontal: THEME.spacing.md,
     borderRadius: 20,
     width: 200,
     height: 50,
@@ -322,13 +401,11 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   colorSection: {
-    marginBottom: 20,
+    marginBottom: THEME.spacing.lg,
   },
   colorContainer: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 10,
-    marginTop: 10,
+    marginTop: THEME.spacing.sm,
   },
   colorButton: {
     width: 40,
