@@ -16,6 +16,7 @@ const THEME = {
     borderLight: '#eee',
     background: '#f0f0f0',
     link: '#007AFF',
+    placeholder: '#9CA3AF',
   },
   spacing: {
     xs: 5,
@@ -210,6 +211,7 @@ const [selectedColor, setSelectedColor] = useState<TaskColor>(TASK_COLORS[4].val
           value={title}
           onChangeText={setTitle}
           placeholder="Enter task title"
+          placeholderTextColor={THEME.colors.placeholder}
         />
 
         <Text style={styles.label}>Description</Text>
@@ -219,6 +221,7 @@ const [selectedColor, setSelectedColor] = useState<TaskColor>(TASK_COLORS[4].val
           onChangeText={setDescription}
           multiline
           placeholder="Recommended are the task details and the due date"
+          placeholderTextColor={THEME.colors.placeholder}
         />
 
         <SliderInput

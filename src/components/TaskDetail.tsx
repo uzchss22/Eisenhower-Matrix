@@ -21,6 +21,7 @@ const THEME = {
     lightGray: '#f0f0f0',
     link: '#007AFF',
     borderLight: '#eee',
+    placeholder: '#9CA3AF',
   },
   spacing: {
     xs: 5,
@@ -139,6 +140,7 @@ export const TaskDetail: React.FC<TaskDetailProps> = ({
           value={title}
           onChangeText={setTitle}
           placeholder="Enter task title"
+          placeholderTextColor={THEME.colors.placeholder}
         />
 
         <Text style={styles.label}>Description</Text>
@@ -148,6 +150,7 @@ export const TaskDetail: React.FC<TaskDetailProps> = ({
           onChangeText={setDescription}
           multiline
           placeholder="Enter task description"
+          placeholderTextColor={THEME.colors.placeholder}
         />
 
         <SliderInput
